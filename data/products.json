@@ -1,0 +1,11 @@
+{
+  "source": "placeholder",
+  "disclaimer": "This dashboard currently serves placeholder data only and does not access authenticated or credential-protected pages.",
+  "products": [
+    {
+      "name": "Placeholder Product",
+      "category": "Scaffold",
+      "note": "Replace this entry with public-page extraction results in a future task."
+    }
+  ]
+}
