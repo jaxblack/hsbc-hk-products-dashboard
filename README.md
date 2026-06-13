@@ -33,6 +33,36 @@ See [GitHub Pages setup](#github-pages-setup) below for the one-time toggle.
 
 ---
 
+## Recent runs
+
+Static screenshots from local runs of the dashboard against the latest
+`data/products.json`. Useful when GitHub Pages is not yet enabled (e.g. on
+private repos whose plan does not support Pages) — reviewers can still see
+the rendered MVP at a glance.
+
+### 2026-06-13 — MVP (commit `bcd5f4d8`)
+
+- Source revision: `9ee1639` (feat: static MVP dashboard + GitHub Pages workflow)
+- Local server: `python -m http.server 8087` from repo root
+- Screenshot tool: headless Chrome, 1440×1100 viewport
+- Dataset: 329 retail time-deposit entries (`data/products.json`,
+  fetched 2026-06-13T09:11:13Z)
+
+![HSBC HK products dashboard — MVP, 2026-06-13](docs/runs/2026-06-13-bcd5f4d8.png)
+
+To reproduce locally:
+
+```bash
+python3 -m http.server 8087 --bind 127.0.0.1 &
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless=new --disable-gpu --hide-scrollbars \
+  --window-size=1440,1100 --virtual-time-budget=4000 \
+  --screenshot=docs/runs/$(date +%F)-<short-sha>.png \
+  http://127.0.0.1:8087/
+```
+
+---
+
 ## Project layout
 
 ```
