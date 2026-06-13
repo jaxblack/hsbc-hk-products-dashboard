@@ -2,3 +2,9 @@
 __pycache__/
 *.pyc
 .DS_Store
+# local-only discovery / verification scratch files
+_probe.py
+_probes/
+_smoke.py
+_inspect.py
+_verify.py
