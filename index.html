@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HSBC HK 公開產品看板 (MVP)</title>
+    <meta
+      name="description"
+      content="HSBC HK 公開產品（目前僅定存）儀表板 — 僅供研究用途，不構成投資建議。"
+    />
+    <link rel="stylesheet" href="assets/dashboard.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <p class="eyebrow">原型 / Prototype</p>
+        <h1>HSBC HK 公開產品看板</h1>
+        <p class="lede">
+          數據來自匯豐香港 <em>公開</em>「Deposit Rate」頁面，僅供研究與比對；本頁不登入、不訪問個人化銀行資料。
+        </p>
+        <div class="disclaimer" role="note" aria-label="重要免責聲明">
+          <strong>⚠️ 免責聲明：</strong>
+          本頁數據僅供參考，<strong>不構成任何投資建議</strong>；
+          利率與條款隨時變動，<strong>一切以 HSBC 官網實時公告為準</strong>。
+          <a
+            class="external"
+            href="https://www.hsbc.com.hk/investments/market-information/hk/deposit-rate/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >前往 HSBC 官網核對 →</a
+          >
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="data-status" aria-live="polite">
+        <div class="status-grid" id="status-grid">
+          <div class="status-cell">
+            <span class="status-label">數據狀態</span>
+            <span class="status-value" id="status-load">載入中…</span>
+          </div>
+          <div class="status-cell">
+            <span class="status-label">抓取時間 (UTC)</span>
+            <span class="status-value" id="status-fetched">—</span>
+          </div>
+          <div class="status-cell">
+            <span class="status-label">原始條目</span>
+            <span class="status-value" id="status-total">—</span>
+          </div>
+          <div class="status-cell">
+            <span class="status-label">當前篩選結果</span>
+            <span class="status-value" id="status-filtered">—</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="filters" aria-label="篩選">
+        <div class="filter-row">
+          <label class="filter-field">
+            <span>類別 (Category)</span>
+            <select id="filter-category">
+              <option value="__ALL__">全部</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>幣種 (Currency)</span>
+            <select id="filter-currency">
+              <option value="__ALL__">全部</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>關鍵字 (Search)</span>
+            <input
+              id="filter-search"
+              type="search"
+              placeholder="例如：1 month、HKD500,000"
+              autocomplete="off"
+            />
+          </label>
+          <button id="filter-reset" type="button" class="btn-ghost">重設</button>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="產品列表">
+        <div class="panel-heading">
+          <h2>產品列表</h2>
+          <span class="hint">點擊欄位標題可排序</span>
+        </div>
+        <div class="table-wrap">
+          <table id="products-table">
+            <thead>
+              <tr>
+                <th data-sort="category">類別</th>
+                <th data-sort="currency">幣種</th>
+                <th data-sort="tenor">存期</th>
+                <th data-sort="balance_band">起存金額 / 區間</th>
+                <th data-sort="rate" class="num">年利率 (%)</th>
+                <th data-sort="risk_level">風險</th>
+                <th data-sort="fee">手續費</th>
+              </tr>
+            </thead>
+            <tbody id="products-body">
+              <tr>
+                <td colspan="7" class="empty">載入數據中…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="未抓取類別">
+        <div class="panel-heading">
+          <h2>其他類別 — 暫無數據</h2>
+          <span class="hint">本 MVP 僅抓取定存；以下類別本次發布不在範圍內</span>
+        </div>
+        <ul class="missing-list" id="missing-categories">
+          <!-- 由 JS 動態生成；保留無 JS 版本的 fallback： -->
+          <li>
+            <strong>基金 / 理財 (Funds &amp; Wealth Management)</strong>
+            <span class="badge nodata">暫無數據</span>
+            <p>原因：HSBC 基金頁面為動態渲染且需登入後才顯示完整列表，本 MVP 不抓取。</p>
+          </li>
+          <li>
+            <strong>結構性產品 / 債券 (Structured Products &amp; Bonds)</strong>
+            <span class="badge nodata">暫無數據</span>
+            <p>原因：此類產品需風險評估與身份驗證，僅在認證頁面提供，本 MVP 不抓取。</p>
+          </li>
+          <li>
+            <strong>外匯 / 貴金屬 (FX &amp; Precious Metals)</strong>
+            <span class="badge nodata">暫無數據</span>
+            <p>原因：實時報價來源為登入後的串流接口，本 MVP 不抓取；如需請以 HSBC 官網實時報價為準。</p>
+          </li>
+        </ul>
+      </section>
+
+      <footer class="site-footer">
+        <p>
+          數據源：
+          <a
+            href="https://www.hsbc.com.hk/investments/market-information/hk/deposit-rate/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >HSBC HK · Deposit Rate (公開頁面)</a
+          >
+        </p>
+        <p class="muted">
+          本頁不收集任何個人資訊，亦不向匯豐伺服器發起任何請求；表格內容由本地 <code>data/products.json</code> 載入。
+        </p>
+      </footer>
+    </main>
+
+    <script src="assets/dashboard.js" defer></script>
+  </body>
+</html>
