@@ -55,6 +55,104 @@
         </div>
       </section>
 
+      <section class="panel architecture-panel" aria-label="香港資金與稅務合規架構">
+        <div class="panel-heading">
+          <h2>香港資金與稅務合規架構</h2>
+          <span class="hint">目標：用起港卡、產品到期後可回內地、少換匯、全程留痕</span>
+        </div>
+
+        <p class="architecture-summary">
+          這是一個<strong>個人名義、低複雜度</strong>的港卡理財架構：銀行賬戶負責現金、定存、旅遊與網購；券商只放長期不用的資產；所有跨境流轉保留銀行流水、產品確認書、稅務自我證明與換匯記錄。
+        </p>
+
+        <div class="flow-diagram" role="list" aria-label="資金流向圖">
+          <article class="flow-node source" role="listitem">
+            <span class="flow-kicker">Step 1</span>
+            <h3>資金來源</h3>
+            <p>內地 / 香港同名個人賬戶</p>
+            <ul>
+              <li>保留入金來源與匯款憑證</li>
+              <li>避免第三方代收代付</li>
+            </ul>
+          </article>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <article class="flow-node hub" role="listitem">
+            <span class="flow-kicker">Step 2</span>
+            <h3>香港銀行中樞</h3>
+            <p>BOCHK / HSBC / SC HK 分工</p>
+            <ul>
+              <li>HSBC：主操作 + 新資金定存 + 消費</li>
+              <li>BOCHK：回內地與中銀體系通道</li>
+              <li>SC HK：備用通道 + 利率比價</li>
+            </ul>
+          </article>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <article class="flow-node product" role="listitem">
+            <span class="flow-kicker">Step 3</span>
+            <h3>產品分層</h3>
+            <p>定存優先，投資後置</p>
+            <ul>
+              <li>3–6 個月美元 / 港元短定存</li>
+              <li>券商只放長期不用資金</li>
+              <li>暫避槓桿、孖展、複雜結構性產品</li>
+            </ul>
+          </article>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <article class="flow-node output" role="listitem">
+            <span class="flow-kicker">Step 4</span>
+            <h3>使用 / 回流</h3>
+            <p>到期後再決策</p>
+            <ul>
+              <li>港卡：網購、旅行、境外消費</li>
+              <li>回內地：到期後同名賬戶匯回</li>
+              <li>少換幣種，降低匯差與手續費</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="account-grid" aria-label="賬戶角色分工">
+          <article class="account-card">
+            <h3>BOCHK</h3>
+            <p class="role">回流通道</p>
+            <p>保留港幣 / 人民幣 / 美元子賬戶與內地同名收款人，用於產品到期後匯回內地。</p>
+          </article>
+          <article class="account-card primary">
+            <h3>HSBC HK</h3>
+            <p class="role">主操作賬戶</p>
+            <p>承接新資金定存、港卡日常使用、境外網購與旅行消費；每次只在到期日附近做再配置。</p>
+          </article>
+          <article class="account-card">
+            <h3>Standard Chartered HK</h3>
+            <p class="role">備用與比價</p>
+            <p>作為第二報價與第二通道；當定存利率、卡活動或匯款費用更好時再使用。</p>
+          </article>
+          <article class="account-card broker">
+            <h3>持牌券商</h3>
+            <p class="role">長期投資層</p>
+            <p>只放中長期不用資金；完成 W-8BEN / CRS 後再考慮低成本 ETF，不承擔短期回流任務。</p>
+          </article>
+        </div>
+
+        <div class="decision-grid" aria-label="操作規則">
+          <div>
+            <h3>每次產品到期</h3>
+            <ol>
+              <li>先確認 30 天內是否要旅遊 / 網購 / 回內地。</li>
+              <li>如果要消費，保留在 HSBC 或對應港卡幣種。</li>
+              <li>如果不用，重新比價 HSBC / BOCHK / SC HK 的 3–6 個月定存。</li>
+            </ol>
+          </div>
+          <div>
+            <h3>合規留痕</h3>
+            <ol>
+              <li>保存月結單、定存確認、換匯與跨境匯款水單。</li>
+              <li>CRS、稅收居民、W-8BEN 按真實身份填寫。</li>
+              <li>避免使用他人賬戶中轉，避免用途與實際交易不一致。</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
       <section class="filters" aria-label="篩選">
         <div class="filter-row">
           <label class="filter-field">
