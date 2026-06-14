@@ -184,6 +184,121 @@ main.container { padding-top: 20px; padding-bottom: 60px; }
 .panel-heading h2 { margin: 0; font-size: 18px; }
 .panel-heading .hint { color: var(--ink-muted); font-size: 13px; }
 
+/* Personal HK investment architecture */
+.architecture-panel {
+  background:
+    radial-gradient(circle at top left, rgba(219, 0, 17, 0.08), transparent 32%),
+    var(--panel);
+}
+.architecture-summary {
+  margin: 0 0 14px;
+  color: var(--ink-muted);
+  max-width: 980px;
+}
+.architecture-summary strong { color: var(--ink); }
+.flow-diagram {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+  margin: 14px 0 16px;
+}
+.flow-node {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+  background: #fff;
+  min-height: 190px;
+}
+.flow-node h3,
+.account-card h3,
+.decision-grid h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+.flow-node p,
+.account-card p,
+.decision-grid p {
+  margin: 0;
+}
+.flow-node p {
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+.flow-node ul,
+.decision-grid ol {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+.flow-node li + li,
+.decision-grid li + li { margin-top: 4px; }
+.flow-kicker {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--info-bg);
+  color: var(--info);
+}
+.flow-node.source { border-top: 4px solid #6b7280; }
+.flow-node.hub { border-top: 4px solid var(--accent); }
+.flow-node.product { border-top: 4px solid var(--info); }
+.flow-node.output { border-top: 4px solid var(--ok); }
+.flow-arrow {
+  align-self: center;
+  color: #9ca3af;
+  font-size: 24px;
+  font-weight: 700;
+}
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 14px;
+}
+.account-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #f9fafb;
+  padding: 14px;
+}
+.account-card.primary {
+  background: #fff5f5;
+  border-color: rgba(219, 0, 17, 0.28);
+}
+.account-card.broker {
+  background: #f8fafc;
+  border-style: dashed;
+}
+.account-card .role {
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+.account-card p:not(.role) {
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+.decision-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.decision-grid > div {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+  background: #fff;
+}
+
 /* Table */
 .table-wrap { overflow-x: auto; }
 table {
@@ -266,7 +381,24 @@ tbody td.empty {
   font-size: 12px;
 }
 
+@media (max-width: 960px) {
+  .flow-diagram {
+    grid-template-columns: 1fr;
+  }
+  .flow-arrow {
+    transform: rotate(90deg);
+    justify-self: center;
+  }
+  .flow-node { min-height: auto; }
+  .account-grid,
+  .decision-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 600px) {
   .site-header h1 { font-size: 22px; }
   thead th, tbody td { padding: 8px; font-size: 13px; }
+  .account-grid,
+  .decision-grid { grid-template-columns: 1fr; }
 }
