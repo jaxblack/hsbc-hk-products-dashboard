@@ -1,9 +1,9 @@
 name: Deploy static dashboard to GitHub Pages
 
-# Publishes the static dashboard (index.html + assets/ + data/products.json)
-# to GitHub Pages every time main is updated. The repo's "Pages" source must
-# be set to "GitHub Actions" (Settings → Pages → Source). See README for the
-# one-time setup.
+# Publishes the static dashboard (index.html + assets/ + data/) to GitHub Pages
+# every time main is updated. The repo's "Pages" source must be set to
+# "GitHub Actions" (Settings → Pages → Source). See README for the one-time
+# setup.
 
 on:
   push:
@@ -38,7 +38,7 @@ jobs:
           mkdir -p _site/assets _site/data
           cp index.html _site/index.html
           cp -R assets/. _site/assets/
-          cp data/products.json _site/data/products.json
+          cp -R data/. _site/data/
           ls -la _site _site/assets _site/data
 
       - name: Upload Pages artifact
