@@ -1,16 +1,25 @@
 # hsbc-hk-products-dashboard
 
-A small, static **HSBC HK public-products dashboard** — currently scoped to
-**retail time deposits**. The scraper pulls publicly-listed rates from a
-single HSBC HK market-information page and writes them to
-`data/products.json`; a lightweight static page (`index.html` +
-`assets/dashboard.{css,js}`) reads that file and renders a sortable,
-filterable table.
+A small **Hong Kong equities monitoring dashboard** — the page (`index.html` +
+`assets/dashboard.css` + `assets/equities.js`) tracks a core watchlist of
+popular HK tech stocks with live quotes, technical indicators, macro/micro
+analysis, a server-side custom watchlist, and on-demand real-time queries.
 
-> ⚠️ **免責聲明 / Disclaimer**
-> 本看板數據僅供參考，**不構成任何投資建議**；利率與條款隨時變動，
-> **一切以 HSBC 官網實時公告為準**。
-> Research and prototyping only. Verify against the bank's official quote
+Quotes are pulled from **multiple public data sources** with automatic
+fallback — Yahoo Finance v8 *chart* endpoint (multi-host) → Tencent
+`qt.gtimg.cn` → an embedded deterministic mock — so the dashboard shows live
+prices instead of getting stuck on a stale snapshot. Run it via **FastAPI**
+(`app/main.py`) to enable real-time single-stock queries and the custom
+watchlist; the static page also works standalone (snapshot only).
+
+> The retail time-deposit comparison table was removed from the dashboard UI.
+> The deposit **scraper** (`app/scraper.py`) and its `data/products.json` are
+> kept for reference and still power the legacy `GET /api/products` endpoint.
+
+> ⚠️ **免责声明 / Disclaimer**
+> 本看板数据**仅供研究参考，不构成任何投资建议**；行情可能延迟，上游不可用时会
+> 展示回退 / mock 结果，**一切以交易所及券商官方实时报价为准**。
+> Research and prototyping only. Verify against official exchange/broker quotes
 > before any decision.
 
 - Only publicly-accessible HSBC HK pages are accessed, at low frequency.
@@ -37,19 +46,21 @@ See [GitHub Pages setup](#github-pages-setup) below for the one-time toggle.
 
 ```
 .
-├── index.html                  # static dashboard (Pages root)
+├── index.html                  # HK equities dashboard (Pages root)
 ├── assets/
 │   ├── dashboard.css           # styles
-│   └── dashboard.js            # fetches data/products.json, filters/sorts
+│   └── equities.js             # fetches hk_stocks.json + live API, renders watchlist
 ├── data/
-│   └── products.json           # scraped time-deposit dataset (overwritten)
+│   ├── hk_stocks.json          # HK watchlist snapshot (overwritten on refresh)
+│   ├── watchlist.json          # server-side custom stocks (created on first add)
+│   └── products.json           # legacy scraped time-deposit dataset
 ├── app/
-│   ├── main.py                 # (legacy) FastAPI server — still works locally
-│   ├── scraper.py              # scraper for the HSBC HK deposit-rate page
-│   ├── templates/index.html    # (legacy) Jinja template used by FastAPI
-│   └── static/style.css        # (legacy) FastAPI styling
+│   ├── main.py                 # FastAPI server — serves the dashboard + live API
+│   ├── hk_stocks.py            # multi-source providers + indicator calculations
+│   ├── scraper.py              # (legacy) scraper for the HSBC HK deposit-rate page
+│   ├── templates/index.html    # (unused) legacy Jinja template
+│   └── static/style.css        # (unused) legacy FastAPI styling
 ├── requirements.txt
-├── app/hk_stocks.py            # HK watchlist provider + indicator calculations
 └── .github/workflows/pages.yml # auto-deploys static site to GitHub Pages
 ```
 
@@ -89,55 +100,66 @@ python -m app.scraper
 This rewrites `data/products.json`. Exit code `0` on success; non-zero if
 the page layout changed and zero entries were parsed.
 
-### 4. Open the local dashboard
+### 4. Run the dashboard
 
-The static dashboard is plain HTML/CSS/JS and only needs a tiny static
-server (it `fetch()`s `data/products.json` over HTTP, so `file://` will not
-work due to browser CORS rules):
-
-```bash
-python -m http.server 8080
-# then open: http://127.0.0.1:8080/
-```
-
-You should see a table of all 329 time-deposit entries with filters for
-**category** and **currency**, plus a "no data" panel calling out
-funds / structured products / FX & precious metals (intentionally not
-covered by this MVP).
-
-### Optional — legacy FastAPI server
-
-If you prefer the previous FastAPI app:
+**Recommended — FastAPI backend** (enables real-time single-stock queries and
+the server-side custom watchlist):
 
 ```bash
 uvicorn app.main:app --reload
 # then open: http://127.0.0.1:8000
 ```
 
-Endpoints: `GET /` (Jinja page), `GET /health`, `GET /api/products`,
-`GET /api/hk-stocks` and `POST /api/hk-stocks/refresh`.
+FastAPI serves the same static dashboard (`index.html` + `assets/` + `data/`)
+and the live API. You should see the **core HK tech watchlist** (Tencent,
+Alibaba, Meituan, Xiaomi, Kuaishou, JD.com, NetEase, Baidu, SMIC, Lenovo,
+SenseTime, Sunny Optical, plus HSBC / China Mobile / AIA / Ping An) with
+overview cards, macro/micro analysis, a sortable watchlist, per-stock metric
+detail, an **添加自选股** form, and an **实时查询此股** button.
+
+**Static only** (snapshot view, no real-time / custom watchlist — e.g. GitHub
+Pages):
+
+```bash
+python -m http.server 8080
+# then open: http://127.0.0.1:8080/
+```
+
+The page reads `data/hk_stocks.json`; the add-stock and real-time buttons are
+disabled because they require the FastAPI backend.
+
+### API endpoints
+
+- `GET /` — the HK equities dashboard (static `index.html`)
+- `GET /health` — `{"status": "ok"}`
+- `GET /api/hk-stocks?refresh=<bool>` — watchlist snapshot (default + custom)
+- `POST /api/hk-stocks/refresh` — force a fresh multi-source pull
+- `GET /api/hk-stocks/quote?symbol=<code>` — on-demand real-time single quote
+- `GET /api/watchlist` · `POST /api/watchlist` · `DELETE /api/watchlist/{symbol}`
+  — read / add / remove custom stocks (persisted to `data/watchlist.json`)
+- `GET /api/products` — legacy time-deposit dataset (`data/products.json`)
 
 ### Hong Kong stock watchlist payload
 
-The FastAPI app now exposes a **core HK watchlist** with basic + advanced
-indicators via:
-
-```bash
-GET /api/hk-stocks
-POST /api/hk-stocks/refresh
-```
-
-The payload includes:
+The watchlist payload (`/api/hk-stocks`) includes:
 
 - latest price, absolute / percent change, volume, turnover value, turnover rate
 - 30-day volatility, MA5/10/20/50, RSI(14), MACD, Bollinger Bands
 - market cap, TTM PE, PB, TTM EPS, dividend yield when upstream fields exist
 - `metadata.indicator_definitions` explanations and per-stock `risk_flags`
 
-Live data is attempted via public Yahoo Finance quote/chart endpoints. If the
-upstream is unavailable, or `HK_STOCKS_PROVIDER=mock`, the API writes and serves
-an embedded deterministic development snapshot with explicit `MOCK_DATA` /
-`DEV_FALLBACK` risk flags.
+**Data sources (multi-source fallback chain):** Yahoo Finance v8 *chart*
+endpoint (tried across multiple hosts; gives price + history → full technical
+indicators) → Tencent `qt.gtimg.cn` (quote-only live fallback + TTM P/E
+enrichment; `LIMITED_HISTORY` flag) → embedded deterministic mock
+(`MOCK_DATA` / `DEV_FALLBACK` flags). Set `HK_STOCKS_PROVIDER=mock` to force
+the mock, or `HK_STOCKS_PROVIDER=tencent` for quote-only live.
+
+> **Dividend yield note:** `0.00%` means the company pays **no dividend** (a
+> valid, known value — e.g. Meituan, Xiaomi), shown as `0.00%（不分红）`; `—`
+> means the figure was unavailable upstream. Free live sources (Yahoo chart /
+> Tencent) do not expose dividend yield, so live mode shows `—`; the curated
+> mock data carries the worked dividend examples.
 
 ---
 
@@ -210,21 +232,20 @@ required fields.
 | Structured Products / Bonds            | ⛔ no data          | Distribution is gated behind risk-assessment + auth flows; out of scope.              |
 | FX / Precious Metals                   | ⛔ no data          | Live quotes come from authenticated streaming endpoints; out of scope.                |
 
-The dashboard surfaces the "no data" categories explicitly — it does **not**
-fabricate numbers for them.
+The deposit **scraper** still covers time deposits only and does **not**
+fabricate numbers for the other categories. (The deposit comparison table is
+no longer rendered in the dashboard UI, but `python -m app.scraper` and
+`GET /api/products` continue to work.)
 
 ---
 
-## Endpoints (legacy FastAPI app, optional)
+## Endpoints
 
-- `GET /` — Jinja-rendered dashboard (legacy)
-- `GET /health` — `{"status": "ok"}`
-- `GET /api/products` — returns the contents of `data/products.json`
-- `GET /api/hk-stocks` — returns HK watchlist quotes, indicators, metadata
-- `POST /api/hk-stocks/refresh` — refreshes and persists `data/hk_stocks.json`
-
-The static dashboard at the repo root does not depend on these endpoints;
-it reads `data/products.json` directly.
+See [API endpoints](#api-endpoints) above for the full list. In short: `GET /`
+serves the static HK equities dashboard, `GET /api/hk-stocks` (+ `?refresh=1`)
+returns the watchlist snapshot, `GET /api/hk-stocks/quote?symbol=…` does a
+real-time single-stock query, `GET|POST|DELETE /api/watchlist` manages custom
+stocks, and `GET /api/products` returns the legacy deposit dataset.
 
 ---
 

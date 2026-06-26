@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hans">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>HSBC HK 公開產品看板 · 港股實時監控 (MVP)</title>
+    <title>港股核心热门股票 · 实时监控看板</title>
     <meta
       name="description"
-      content="HSBC HK 公開產品儀表板＋港股核心熱門股票實時監控 — 僅供研究用途，不構成投資建議。"
+      content="港股核心热门科技股实时监控 — 多数据源、技术指标与自选股，仅供研究用途，不构成投资建议。"
     />
     <link rel="stylesheet" href="assets/dashboard.css" />
   </head>
@@ -14,21 +14,15 @@
     <header class="site-header">
       <div class="container">
         <p class="eyebrow">原型 / Prototype</p>
-        <h1>HSBC HK 公開產品看板 · 港股實時監控</h1>
+        <h1>港股核心热门股票 · 实时监控看板</h1>
         <p class="lede">
-          上半部為<em>港股核心熱門股票實時監控</em>（總覽、自選列表、指標詳情與宏觀/微觀分析）；下半部為匯豐香港 <em>公開</em>「Deposit Rate」定存比價。本頁不登入、不訪問個人化銀行資料。
+          聚焦<em>港股核心热门科技股</em>的实时监控：总览、自选监控列表、单股指标详情与宏观 / 微观分析。支持多数据源拉取、点击实时查询与自定义自选股。本页不登入、不访问个人化银行资料。
         </p>
-        <div class="disclaimer" role="note" aria-label="重要免責聲明">
-          <strong>⚠️ 免責聲明：</strong>
-          本頁數據僅供參考，<strong>不構成任何投資建議</strong>；
-          利率與條款隨時變動，<strong>一切以 HSBC 官網實時公告為準</strong>。
-          <a
-            class="external"
-            href="https://www.hsbc.com.hk/investments/market-information/hk/deposit-rate/"
-            target="_blank"
-            rel="noopener noreferrer"
-            >前往 HSBC 官網核對 →</a
-          >
+        <div class="disclaimer" role="note" aria-label="重要免责声明">
+          <strong>⚠️ 免责声明：</strong>
+          本页数据<strong>仅供研究参考，不构成任何投资建议</strong>；
+          行情可能<strong>延迟</strong>，上游不可用时会展示<strong>回退 / mock</strong>结果，
+          <strong>一切以交易所及券商官方实时报价为准</strong>。
         </div>
       </div>
     </header>
@@ -128,10 +122,29 @@
           <button id="eq-filter-reset" type="button" class="btn-ghost">重设</button>
         </div>
 
+        <div class="eq-addbar">
+          <form class="eq-add-form" id="eq-add-form" autocomplete="off">
+            <label class="filter-field">
+              <span>添加自选股 (代码)</span>
+              <input id="eq-add-symbol" type="text" inputmode="numeric" placeholder="如 0700 / 9988 / 1024" />
+            </label>
+            <label class="filter-field">
+              <span>名称（可选）</span>
+              <input id="eq-add-name" type="text" placeholder="留空自动识别" />
+            </label>
+            <label class="filter-field">
+              <span>板块（可选）</span>
+              <input id="eq-add-sector" type="text" placeholder="自选" />
+            </label>
+            <button type="submit" class="btn-primary" id="eq-add-submit">加入监控</button>
+          </form>
+          <p class="eq-add-hint" id="eq-add-hint">自选股保存在服务器端 <code>data/watchlist.json</code>（所有访客共享），添加后会直接出现在监控列表；此功能需运行 FastAPI 后端。</p>
+        </div>
+
         <div class="panel eq-table-panel">
           <div class="panel-heading">
             <h2>自选监控列表 (Watchlist)</h2>
-            <span class="hint">点击行查看核心 / 技术指标 · 点击表头排序 · 悬停指标名看说明</span>
+            <span class="hint">点击行在右侧弹出详情 · 点击表头排序 · 悬停指标名看说明</span>
           </div>
           <div class="table-wrap">
             <table id="eq-table">
@@ -153,16 +166,28 @@
           </div>
         </div>
 
-        <!-- Metric detail drawer for the selected stock -->
-        <div class="panel eq-detail" id="eq-detail" aria-live="polite">
-          <div class="panel-heading">
-            <h2 id="eq-detail-title">指标详情</h2>
-            <span class="hint" id="eq-detail-hint">从上方列表选择一只股票查看核心指标、技术指标与估值解释</span>
+        <!-- Metric detail sidebar (off-canvas) for the selected stock -->
+        <aside
+          class="eq-detail eq-drawer"
+          id="eq-detail"
+          aria-live="polite"
+          aria-label="个股指标详情"
+          role="dialog"
+        >
+          <div class="eq-drawer-head">
+            <div class="eq-drawer-titles">
+              <h2 id="eq-detail-title">指标详情</h2>
+              <span class="hint" id="eq-detail-hint">从上方列表选择一只股票查看核心指标、技术指标与估值解释</span>
+            </div>
+            <div class="eq-drawer-actions">
+              <button type="button" class="btn-ghost eq-rt-btn" id="eq-detail-refresh" disabled>实时查询此股</button>
+              <button type="button" class="eq-drawer-close" id="eq-detail-close" aria-label="关闭详情">×</button>
+            </div>
           </div>
           <div class="eq-detail-body" id="eq-detail-body">
-            <p class="muted">尚未选择股票。点击监控列表中的任意一行即可展开现价、成交、波动率、均线、RSI、MACD、布林带与估值指标，并附带解释。</p>
+            <p class="muted">尚未选择股票。点击监控列表中的任意一行即可在右侧弹出现价、成交、盘口、波动率、均线、RSI、MACD、布林带与估值指标。</p>
           </div>
-        </div>
+        </aside>
 
         <!-- Risk notes -->
         <div class="panel eq-risk" id="eq-risk" aria-label="风险提示">
@@ -180,221 +205,16 @@
         </div>
       </section>
 
-      <section class="data-status" aria-live="polite">
-        <div class="status-grid" id="status-grid">
-          <div class="status-cell">
-            <span class="status-label">數據狀態</span>
-            <span class="status-value" id="status-load">載入中…</span>
-          </div>
-          <div class="status-cell">
-            <span class="status-label">抓取時間 (UTC)</span>
-            <span class="status-value" id="status-fetched">—</span>
-          </div>
-          <div class="status-cell">
-            <span class="status-label">原始條目</span>
-            <span class="status-value" id="status-total">—</span>
-          </div>
-          <div class="status-cell">
-            <span class="status-label">當前篩選結果</span>
-            <span class="status-value" id="status-filtered">—</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel architecture-panel" aria-label="香港資金與稅務合規架構">
-        <div class="panel-heading">
-          <h2>香港資金與稅務合規架構</h2>
-          <span class="hint">目標：用起港卡、產品到期後可回內地、少換匯、全程留痕</span>
-        </div>
-
-        <p class="architecture-summary">
-          這是一個<strong>個人名義、低複雜度</strong>的港卡理財架構：銀行賬戶負責現金、定存、旅遊與網購；券商只放長期不用的資產；所有跨境流轉保留銀行流水、產品確認書、稅務自我證明與換匯記錄。
-        </p>
-
-        <div class="flow-diagram" role="list" aria-label="資金流向圖">
-          <article class="flow-node source" role="listitem">
-            <span class="flow-kicker">Step 1</span>
-            <h3>資金來源</h3>
-            <p>內地 / 香港同名個人賬戶</p>
-            <ul>
-              <li>保留入金來源與匯款憑證</li>
-              <li>避免第三方代收代付</li>
-            </ul>
-          </article>
-          <div class="flow-arrow" aria-hidden="true">→</div>
-          <article class="flow-node hub" role="listitem">
-            <span class="flow-kicker">Step 2</span>
-            <h3>香港銀行中樞</h3>
-            <p>BOCHK / HSBC / SC HK 分工</p>
-            <ul>
-              <li>HSBC：主操作 + 新資金定存 + 消費</li>
-              <li>BOCHK：回內地與中銀體系通道</li>
-              <li>SC HK：備用通道 + 利率比價</li>
-            </ul>
-          </article>
-          <div class="flow-arrow" aria-hidden="true">→</div>
-          <article class="flow-node product" role="listitem">
-            <span class="flow-kicker">Step 3</span>
-            <h3>產品分層</h3>
-            <p>定存優先，投資後置</p>
-            <ul>
-              <li>3–6 個月美元 / 港元短定存</li>
-              <li>券商只放長期不用資金</li>
-              <li>暫避槓桿、孖展、複雜結構性產品</li>
-            </ul>
-          </article>
-          <div class="flow-arrow" aria-hidden="true">→</div>
-          <article class="flow-node output" role="listitem">
-            <span class="flow-kicker">Step 4</span>
-            <h3>使用 / 回流</h3>
-            <p>到期後再決策</p>
-            <ul>
-              <li>港卡：網購、旅行、境外消費</li>
-              <li>回內地：到期後同名賬戶匯回</li>
-              <li>少換幣種，降低匯差與手續費</li>
-            </ul>
-          </article>
-        </div>
-
-        <div class="account-grid" aria-label="賬戶角色分工">
-          <article class="account-card">
-            <h3>BOCHK</h3>
-            <p class="role">回流通道</p>
-            <p>保留港幣 / 人民幣 / 美元子賬戶與內地同名收款人，用於產品到期後匯回內地。</p>
-          </article>
-          <article class="account-card primary">
-            <h3>HSBC HK</h3>
-            <p class="role">主操作賬戶</p>
-            <p>承接新資金定存、港卡日常使用、境外網購與旅行消費；每次只在到期日附近做再配置。</p>
-          </article>
-          <article class="account-card">
-            <h3>Standard Chartered HK</h3>
-            <p class="role">備用與比價</p>
-            <p>作為第二報價與第二通道；當定存利率、卡活動或匯款費用更好時再使用。</p>
-          </article>
-          <article class="account-card broker">
-            <h3>持牌券商</h3>
-            <p class="role">長期投資層</p>
-            <p>只放中長期不用資金；完成 W-8BEN / CRS 後再考慮低成本 ETF，不承擔短期回流任務。</p>
-          </article>
-        </div>
-
-        <div class="decision-grid" aria-label="操作規則">
-          <div>
-            <h3>每次產品到期</h3>
-            <ol>
-              <li>先確認 30 天內是否要旅遊 / 網購 / 回內地。</li>
-              <li>如果要消費，保留在 HSBC 或對應港卡幣種。</li>
-              <li>如果不用，重新比價 HSBC / BOCHK / SC HK 的 3–6 個月定存。</li>
-            </ol>
-          </div>
-          <div>
-            <h3>合規留痕</h3>
-            <ol>
-              <li>保存月結單、定存確認、換匯與跨境匯款水單。</li>
-              <li>CRS、稅收居民、W-8BEN 按真實身份填寫。</li>
-              <li>避免使用他人賬戶中轉，避免用途與實際交易不一致。</li>
-            </ol>
-          </div>
-        </div>
-      </section>
-
-      <section class="filters" aria-label="篩選">
-        <div class="filter-row">
-          <label class="filter-field">
-            <span>類別 (Category)</span>
-            <select id="filter-category">
-              <option value="__ALL__">全部</option>
-            </select>
-          </label>
-          <label class="filter-field">
-            <span>幣種 (Currency)</span>
-            <select id="filter-currency">
-              <option value="__ALL__">全部</option>
-            </select>
-          </label>
-          <label class="filter-field">
-            <span>關鍵字 (Search)</span>
-            <input
-              id="filter-search"
-              type="search"
-              placeholder="例如：1 month、HKD500,000"
-              autocomplete="off"
-            />
-          </label>
-          <button id="filter-reset" type="button" class="btn-ghost">重設</button>
-        </div>
-      </section>
-
-      <section class="panel" aria-label="產品列表">
-        <div class="panel-heading">
-          <h2>產品列表</h2>
-          <span class="hint">點擊欄位標題可排序</span>
-        </div>
-        <div class="table-wrap">
-          <table id="products-table">
-            <thead>
-              <tr>
-                <th data-sort="category">類別</th>
-                <th data-sort="currency">幣種</th>
-                <th data-sort="tenor">存期</th>
-                <th data-sort="balance_band">起存金額 / 區間</th>
-                <th data-sort="rate" class="num">年利率 (%)</th>
-                <th data-sort="risk_level">風險</th>
-                <th data-sort="fee">手續費</th>
-              </tr>
-            </thead>
-            <tbody id="products-body">
-              <tr>
-                <td colspan="7" class="empty">載入數據中…</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="panel" aria-label="未抓取類別">
-        <div class="panel-heading">
-          <h2>其他類別 — 暫無數據</h2>
-          <span class="hint">本 MVP 僅抓取定存；以下類別本次發布不在範圍內</span>
-        </div>
-        <ul class="missing-list" id="missing-categories">
-          <!-- 由 JS 動態生成；保留無 JS 版本的 fallback： -->
-          <li>
-            <strong>基金 / 理財 (Funds &amp; Wealth Management)</strong>
-            <span class="badge nodata">暫無數據</span>
-            <p>原因：HSBC 基金頁面為動態渲染且需登入後才顯示完整列表，本 MVP 不抓取。</p>
-          </li>
-          <li>
-            <strong>結構性產品 / 債券 (Structured Products &amp; Bonds)</strong>
-            <span class="badge nodata">暫無數據</span>
-            <p>原因：此類產品需風險評估與身份驗證，僅在認證頁面提供，本 MVP 不抓取。</p>
-          </li>
-          <li>
-            <strong>外匯 / 貴金屬 (FX &amp; Precious Metals)</strong>
-            <span class="badge nodata">暫無數據</span>
-            <p>原因：實時報價來源為登入後的串流接口，本 MVP 不抓取；如需請以 HSBC 官網實時報價為準。</p>
-          </li>
-        </ul>
-      </section>
-
       <footer class="site-footer">
-        <p>
-          數據源：
-          <a
-            href="https://www.hsbc.com.hk/investments/market-information/hk/deposit-rate/"
-            target="_blank"
-            rel="noopener noreferrer"
-            >HSBC HK · Deposit Rate (公開頁面)</a
-          >
+        <p class="muted">
+          数据来源：Yahoo Finance v8 chart（多 host）与腾讯 qt.gtimg.cn 公共行情接口；上游不可用时回退至内置 mock 快照。
         </p>
         <p class="muted">
-          本頁不收集任何個人資訊；定存與港股展示分别由本地 <code>data/products.json</code>、<code>data/hk_stocks.json</code>（或 FastAPI 的 <code>/api/hk-stocks</code>）載入。
+          本页不收集任何个人信息；港股监控由本地 <code>data/hk_stocks.json</code>（或 FastAPI 的 <code>/api/hk-stocks</code>）载入。仅供研究参考，不构成投资建议。
         </p>
       </footer>
     </main>
 
     <script src="assets/equities.js" defer></script>
-    <script src="assets/dashboard.js" defer></script>
   </body>
 </html>

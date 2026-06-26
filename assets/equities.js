@@ -38,9 +38,22 @@
     detailBody: document.getElementById("eq-detail-body"),
     riskList: document.getElementById("eq-risk-list"),
     glossary: document.getElementById("eq-glossary"),
+    addForm: document.getElementById("eq-add-form"),
+    addSymbol: document.getElementById("eq-add-symbol"),
+    addName: document.getElementById("eq-add-name"),
+    addSector: document.getElementById("eq-add-sector"),
+    addSubmit: document.getElementById("eq-add-submit"),
+    addHint: document.getElementById("eq-add-hint"),
+    detail: document.getElementById("eq-detail"),
+    detailRefresh: document.getElementById("eq-detail-refresh"),
+    detailClose: document.getElementById("eq-detail-close"),
   };
 
   if (!els.body || !els.table) return;
+
+  // Live backend (FastAPI) capability — drives real-time single-stock queries
+  // and the server-side custom watchlist. Detected once on init.
+  const API = { available: null };
 
   const TIP_KEY_MAP = {
     price: "price",
@@ -66,6 +79,12 @@
     pb: "valuation",
     eps_ttm: "valuation",
     dividend_yield: "valuation",
+    open: "open_price",
+    high_low: "high_low",
+    amplitude: "amplitude",
+    volume_ratio: "volume_ratio",
+    bid_ask: "bid_ask",
+    prev_change: "intraday_change",
     factor_score: "factor_score",
   };
 
@@ -108,6 +127,14 @@
     if (!isNum(n)) return "—";
     const sign = n > 0 ? "+" : "";
     return `${sign}${n.toFixed(2)}%`;
+  }
+
+  // Dividend yield: 0 is a *valid, known* value (the company pays no dividend),
+  // which is different from "—" (the upstream source gave no figure at all).
+  function fmtDividend(n) {
+    if (!isNum(n)) return "—";
+    if (n === 0) return "0.00%（不分红）";
+    return `${n.toFixed(2)}%`;
   }
 
   function fmtMoney(n) {
@@ -313,6 +340,7 @@
     const factor = item.factor || {};
     const alert = item.alert || {};
     const alerts = Array.isArray(item.alerts) ? item.alerts : [];
+    const intraday = item.intraday || {};
 
     return {
       ticker: item.symbol || item.ticker || "",
@@ -320,6 +348,7 @@
       name: item.name || item.name_en || item.symbol || "—",
       sector: item.sector || "—",
       currency: item.currency || "HKD",
+      custom: !!item.custom,
       as_of: item.as_of || state.raw?.as_of || state.raw?.generated_at || "",
       source_mode: item.source_mode || providerLabel(state.raw && state.raw.provider),
       price: asNum(price.value),
@@ -335,6 +364,16 @@
       pb: asNum(valuation.pb_ratio),
       eps_ttm: asNum(valuation.eps_ttm),
       dividend_yield: asNum(valuation.dividend_yield_pct),
+      open: asNum(intraday.open),
+      high: asNum(intraday.high),
+      low: asNum(intraday.low),
+      amplitude_pct: asNum(intraday.amplitude_pct),
+      volume_ratio: asNum(intraday.volume_ratio),
+      bid: asNum(intraday.bid),
+      ask: asNum(intraday.ask),
+      spread: asNum(intraday.spread),
+      prev_close_px: asNum(intraday.prev_close),
+      prev_change_pct: asNum(intraday.prev_change_pct),
       volatility_daily: asNum(volatility.daily_30d_pct),
       volatility_annualized: asNum(volatility.annualized_30d_pct),
       ma5: asNum(moving.ma5),
@@ -599,8 +638,8 @@
           <tr data-ticker="${escapeHtml(stock.ticker)}" class="${selected}" tabindex="0">
             <td>
               <span class="eq-name">
-                <span class="nm">${escapeHtml(stock.name)}</span>
-                <span class="cd">${escapeHtml(stock.code || stock.ticker)}</span>
+                <span class="nm">${escapeHtml(stock.name)}${stock.custom ? '<span class="eq-tag-custom">自选</span>' : ""}</span>
+                <span class="cd">${escapeHtml(stock.code || stock.ticker)}${stock.custom ? ` <button type="button" class="eq-remove" data-remove="${escapeHtml(stock.ticker)}" title="从自选移除">×</button>` : ""}</span>
               </span>
             </td>
             <td>${escapeHtml(stock.sector)}</td>
@@ -608,7 +647,7 @@
             <td class="num chg ${dc}">${fmtPct(stock.change_pct)}</td>
             <td class="num">${fmtMoney(stock.turnover)}</td>
             <td class="num">${isNum(stock.pe_ttm) ? fmtNum(stock.pe_ttm, 1) : "—"}</td>
-            <td class="num">${isNum(stock.dividend_yield) ? `${stock.dividend_yield.toFixed(2)}%` : "—"}</td>
+            <td class="num">${fmtDividend(stock.dividend_yield)}</td>
           </tr>`;
         })
         .join("");
@@ -664,6 +703,10 @@
 
     els.detailTitle.textContent = `${stock.name}（${stock.code || stock.ticker}）指标详情`;
     els.detailHint.textContent = `${stock.sector} · ${fmtAsOf(stock.as_of)} · ${stock.source_mode}`;
+    if (els.detailRefresh) {
+      els.detailRefresh.dataset.ticker = ticker;
+      els.detailRefresh.disabled = API.available !== true;
+    }
 
     const dc = dirClass(stock.change_pct);
     const changeText = `${fmtPct(stock.change_pct)} ${isNum(stock.change_abs) ? `(${stock.change_abs > 0 ? "+" : ""}${fmtNum(stock.change_abs)})` : ""}`;
@@ -712,7 +755,22 @@
       metricCell("PE (TTM)", isNum(stock.pe_ttm) ? fmtNum(stock.pe_ttm, 1) : "—", "pe_ttm"),
       metricCell("PB", isNum(stock.pb) ? fmtNum(stock.pb, 2) : "—", "pb"),
       metricCell("EPS (TTM)", isNum(stock.eps_ttm) ? fmtNum(stock.eps_ttm, 2) : "—", "eps_ttm"),
-      metricCell("股息率", isNum(stock.dividend_yield) ? `${stock.dividend_yield.toFixed(2)}%` : "—", "dividend_yield"),
+      metricCell("股息率", fmtDividend(stock.dividend_yield), "dividend_yield"),
+    ];
+    const pctCell = (n) => (isNum(n) ? `${n.toFixed(2)}%` : "—");
+    const intradayMetrics = [
+      metricCell("今开", fmtNum(stock.open), "open"),
+      metricCell("昨收", fmtNum(stock.prev_close), "open"),
+      metricCell("最高", fmtNum(stock.high), "high_low"),
+      metricCell("最低", fmtNum(stock.low), "high_low"),
+      metricCell("振幅", pctCell(stock.amplitude_pct), "amplitude"),
+      metricCell("换手率", pctCell(stock.turnover_rate), "turnover_rate"),
+      metricCell("量比", isNum(stock.volume_ratio) ? fmtNum(stock.volume_ratio, 2) : "—", "volume_ratio"),
+      metricCell("今日涨跌", `${fmtPct(stock.change_pct)}`, "prev_change"),
+      metricCell("昨日涨跌", isNum(stock.prev_change_pct) ? fmtPct(stock.prev_change_pct) : "—", "prev_change"),
+      metricCell("买一价", fmtNum(stock.bid), "bid_ask"),
+      metricCell("卖一价", fmtNum(stock.ask), "bid_ask"),
+      metricCell("买卖价差", isNum(stock.spread) ? fmtNum(stock.spread, 3) : "—", "bid_ask"),
     ];
 
     els.detailBody.innerHTML = `
@@ -724,6 +782,8 @@
       ${metricSection("Alert / Factor", alertMetrics)}
       <p class="detail-note">${escapeHtml(stock.alert.reason || "当前未触发额外规则。")}</p>
       ${metricSection("核心指标", coreMetrics)}
+      ${metricSection("今日盘口 / 微观", intradayMetrics)}
+      <p class="detail-note">买盘 / 卖盘仅显示最优买一 / 卖一价（免费港股行情无 5 档深度与买卖量）；昨日涨跌需历史 K 线，quote-only 源下显示 —。</p>
       ${metricSection("技术指标", technicalMetrics)}
       ${metricSection("估值 / 分红", valuationMetrics)}
       <div class="flag-list">${flagList}</div>
@@ -776,6 +836,129 @@
     });
   }
 
+  function setAddHint(text, isError) {
+    if (!els.addHint) return;
+    els.addHint.textContent = text;
+    els.addHint.classList.toggle("error", !!isError);
+  }
+
+  function reflectBackendState() {
+    const on = API.available === true;
+    if (els.addSubmit) els.addSubmit.disabled = !on;
+    if (els.detailRefresh) els.detailRefresh.disabled = !on || !state.selected;
+    if (els.addForm) els.addForm.classList.toggle("disabled", !on);
+    if (els.addHint && API.available !== null) {
+      setAddHint(
+        on
+          ? "自选股保存在服务器端 data/watchlist.json（所有访客共享），添加后会直接出现在监控列表。"
+          : "未检测到 FastAPI 后端：添加自选股与实时查询不可用。请用 `uvicorn app.main:app` 启动后端后刷新页面。",
+      );
+    }
+  }
+
+  async function detectBackend() {
+    try {
+      const resp = await fetch(`/api/watchlist?_=${Date.now()}`, { cache: "no-store" });
+      API.available = resp.ok;
+    } catch (err) {
+      API.available = false;
+    }
+    reflectBackendState();
+  }
+
+  async function refreshSingle(ticker) {
+    if (!ticker || API.available !== true) return;
+    const current = state.stocks.find((item) => item.ticker === ticker);
+    if (els.detailRefresh) {
+      els.detailRefresh.disabled = true;
+      els.detailRefresh.textContent = "查询中…";
+    }
+    try {
+      const resp = await fetch(
+        `/api/hk-stocks/quote?symbol=${encodeURIComponent(ticker)}&_=${Date.now()}`,
+        { cache: "no-store" },
+      );
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const json = await resp.json();
+      if (json && json.stock) {
+        const normalized = normalizeStock(json.stock);
+        normalized.custom = current ? current.custom : normalized.custom;
+        const idx = state.stocks.findIndex((item) => item.ticker === ticker);
+        if (idx >= 0) state.stocks[idx] = normalized;
+        renderTable();
+        renderDetail(ticker);
+        const mode = (json.provider && json.provider.mode) || "live";
+        els.detailHint.textContent = `${normalized.sector} · 实时 ${fmtAsOf(normalized.as_of)} · ${mode}`;
+      }
+    } catch (err) {
+      els.detailHint.textContent = `实时查询失败：${err.message || err}`;
+    } finally {
+      if (els.detailRefresh) {
+        els.detailRefresh.textContent = "实时查询此股";
+        els.detailRefresh.disabled = API.available !== true;
+      }
+    }
+  }
+
+  async function addCustomStock(event) {
+    if (event) event.preventDefault();
+    if (API.available !== true || !els.addSymbol) return;
+    const symbol = els.addSymbol.value.trim();
+    if (!symbol) {
+      setAddHint("请输入港股代码，例如 0700。", true);
+      return;
+    }
+    const name = els.addName ? els.addName.value.trim() : "";
+    const sector = els.addSector ? els.addSector.value.trim() : "";
+    if (els.addSubmit) els.addSubmit.disabled = true;
+    setAddHint("提交中…");
+    try {
+      const resp = await fetch("/api/watchlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbol, name: name || null, sector: sector || null }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.detail || `HTTP ${resp.status}`);
+      const added = data.added || {};
+      els.addSymbol.value = "";
+      if (els.addName) els.addName.value = "";
+      if (els.addSector) els.addSector.value = "";
+      if (added.symbol) state.selected = added.symbol;
+      await load(true);
+      setAddHint(`已加入 ${added.name ? `${added.name}（${added.symbol}）` : symbol}。`);
+    } catch (err) {
+      setAddHint(`添加失败：${err.message || err}`, true);
+    } finally {
+      if (els.addSubmit) els.addSubmit.disabled = API.available !== true;
+    }
+  }
+
+  async function removeCustomStock(ticker) {
+    if (!ticker || API.available !== true) return;
+    try {
+      const resp = await fetch(`/api/watchlist/${encodeURIComponent(ticker)}`, {
+        method: "DELETE",
+      });
+      if (!resp.ok && resp.status !== 404) {
+        const data = await resp.json().catch(() => ({}));
+        throw new Error(data.detail || `HTTP ${resp.status}`);
+      }
+      if (state.selected === ticker) state.selected = null;
+      await load(true);
+    } catch (err) {
+      setRefresh(`移除失败：${err.message || err}`, "warn");
+    }
+  }
+
+  function openDetail() {
+    if (els.detail) els.detail.classList.add("open");
+  }
+
+  function closeDetail() {
+    if (els.detail) els.detail.classList.remove("open");
+  }
+
   function wireEvents() {
     els.filterSector.addEventListener("change", (e) => {
       state.filters.sector = e.target.value;
@@ -810,8 +993,17 @@
       });
     });
     els.body.addEventListener("click", (e) => {
+      const removeBtn = e.target.closest("button[data-remove]");
+      if (removeBtn) {
+        e.stopPropagation();
+        removeCustomStock(removeBtn.dataset.remove);
+        return;
+      }
       const tr = e.target.closest("tr[data-ticker]");
-      if (tr) renderDetail(tr.dataset.ticker);
+      if (tr) {
+        renderDetail(tr.dataset.ticker);
+        openDetail();
+      }
     });
     els.body.addEventListener("keydown", (e) => {
       if (e.key !== "Enter" && e.key !== " ") return;
@@ -819,9 +1011,20 @@
       if (tr) {
         e.preventDefault();
         renderDetail(tr.dataset.ticker);
+        openDetail();
       }
     });
+    if (els.detailClose) els.detailClose.addEventListener("click", closeDetail);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeDetail();
+    });
     if (els.refreshBtn) els.refreshBtn.addEventListener("click", () => load(true));
+    if (els.addForm) els.addForm.addEventListener("submit", addCustomStock);
+    if (els.detailRefresh) {
+      els.detailRefresh.addEventListener("click", () =>
+        refreshSingle(els.detailRefresh.dataset.ticker),
+      );
+    }
     if (els.autoRefresh) {
       els.autoRefresh.addEventListener("change", (e) => {
         if (e.target.checked) startAuto();
@@ -842,7 +1045,23 @@
     }
   }
 
-  async function fetchSnapshot() {
+  async function fetchSnapshot(forceRefresh) {
+    // A manual / auto refresh against the FastAPI backend forces a fresh
+    // multi-source pull (Yahoo chart → Tencent → mock); otherwise read the
+    // pre-generated snapshot file (also works on static GitHub Pages).
+    if (forceRefresh && API.available === true) {
+      try {
+        const resp = await fetch(`/api/hk-stocks?refresh=1&_=${Date.now()}`, {
+          cache: "no-store",
+        });
+        if (resp.ok) {
+          state.activeUrl = "/api/hk-stocks?refresh=1";
+          return await resp.json();
+        }
+      } catch (err) {
+        /* fall through to the snapshot sources below */
+      }
+    }
     let lastError = null;
     for (const url of DATA_URLS) {
       try {
@@ -860,7 +1079,7 @@
   async function load(isRefresh) {
     setRefresh(isRefresh ? "刷新中…" : "载入中…", "loading");
     try {
-      const json = await fetchSnapshot();
+      const json = await fetchSnapshot(isRefresh);
       state.raw = json;
       state.glossary = (json.metadata && json.metadata.indicator_definitions) || {};
       state.stocks = Array.isArray(json.watchlist) ? json.watchlist.map(normalizeStock) : [];
@@ -924,6 +1143,7 @@
 
   function init() {
     wireEvents();
+    detectBackend();
     load(false);
   }
 

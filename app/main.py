@@ -3,19 +3,30 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 
-from app.hk_stocks import load_hk_stock_snapshot, refresh_hk_stock_snapshot
+from app.hk_stocks import (
+    add_custom_watchlist,
+    fetch_single_quote,
+    load_custom_watchlist,
+    load_hk_stock_snapshot,
+    refresh_hk_stock_snapshot,
+    remove_custom_watchlist,
+)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data" / "products.json"
+INDEX_HTML = BASE_DIR / "index.html"
 
-app = FastAPI(title="HSBC HK Products Dashboard")
-app.mount("/static", StaticFiles(directory=BASE_DIR / "app" / "static"), name="static")
-templates = Jinja2Templates(directory=str(BASE_DIR / "app" / "templates"))
+app = FastAPI(title="HK Equities Monitoring Dashboard")
+
+# Serve the rich static dashboard (index.html + assets/ + data/) directly, so the
+# FastAPI deployment and the static GitHub Pages deployment render the same UI.
+app.mount("/assets", StaticFiles(directory=BASE_DIR / "assets"), name="assets")
+app.mount("/data", StaticFiles(directory=BASE_DIR / "data"), name="data")
 
 
 def load_products() -> dict:
@@ -23,14 +34,15 @@ def load_products() -> dict:
         return json.load(file)
 
 
+class WatchlistItem(BaseModel):
+    symbol: str
+    name: str | None = None
+    sector: str | None = None
+
+
 @app.get("/")
-async def index(request: Request) -> JSONResponse:
-    payload = load_products()
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={"request": request, "payload": payload},
-    )
+async def index() -> FileResponse:
+    return FileResponse(INDEX_HTML)
 
 
 @app.get("/health")
@@ -51,3 +63,40 @@ async def hk_stocks(refresh: bool = False) -> dict:
 @app.post("/api/hk-stocks/refresh")
 async def refresh_hk_stocks() -> dict:
     return refresh_hk_stock_snapshot()
+
+
+@app.get("/api/hk-stocks/quote")
+async def hk_stock_quote(symbol: str) -> dict:
+    """On-demand real-time quote for a single symbol (live source chain)."""
+    try:
+        return fetch_single_quote(symbol)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/watchlist")
+async def get_watchlist() -> dict:
+    return {"custom": load_custom_watchlist()}
+
+
+@app.post("/api/watchlist")
+async def post_watchlist(item: WatchlistItem) -> JSONResponse:
+    try:
+        entry = add_custom_watchlist(
+            item.symbol, name=item.name, sector=item.sector
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return JSONResponse(status_code=201, content={"added": entry})
+
+
+@app.delete("/api/watchlist/{symbol}")
+async def delete_watchlist(symbol: str) -> dict:
+    try:
+        removed = remove_custom_watchlist(symbol)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not removed:
+        raise HTTPException(status_code=404, detail=f"{symbol} 不在自选列表中")
+    return {"removed": symbol}
+

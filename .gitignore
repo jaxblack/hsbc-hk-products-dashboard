@@ -11,3 +11,6 @@ _verify.py
 # local-only operational config; see docs/alerts.md
 alerts.local.json
 _debug/
+
+# server-side custom watchlist is runtime user state, not source
+data/watchlist.json

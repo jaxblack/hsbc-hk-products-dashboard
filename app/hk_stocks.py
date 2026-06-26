@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import os
 import urllib.parse
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from statistics import mean, pstdev
 from typing import Any, Protocol
@@ -19,10 +20,16 @@ USER_AGENT = (
 )
 ENV_PROVIDER = "HK_STOCKS_PROVIDER"
 ENV_ALLOW_LIVE = "HK_STOCKS_ALLOW_LIVE"
-YAHOO_QUOTE_URL = "https://query1.finance.yahoo.com/v7/finance/quote"
-YAHOO_CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
+# Yahoo's v7 quote endpoint now requires a crumb/cookie and commonly returns 401,
+# so live data is sourced from the public v8 *chart* endpoint (price + history),
+# tried across multiple hosts. Tencent is used as an independent secondary source.
+YAHOO_HOSTS = ("query1.finance.yahoo.com", "query2.finance.yahoo.com")
+YAHOO_CHART_URL = "https://{host}/v8/finance/chart/{symbol}"
+TENCENT_QUOTE_URL = "https://qt.gtimg.cn/q={codes}"
+SINA_QUOTE_URL = "https://hq.sinajs.cn/list={codes}"
 DEFAULT_RANGE = "6mo"
 DEFAULT_INTERVAL = "1d"
+WATCHLIST_PATH = BASE_DIR / "data" / "watchlist.json"
 
 HK_WATCHLIST = [
     {
@@ -79,6 +86,62 @@ HK_WATCHLIST = [
         "code": "9988",
         "name": "Alibaba Group",
         "sector": "E-Commerce",
+        "currency": "HKD",
+    },
+    {
+        "symbol": "1024.HK",
+        "code": "1024",
+        "name": "Kuaishou",
+        "sector": "Internet",
+        "currency": "HKD",
+    },
+    {
+        "symbol": "9618.HK",
+        "code": "9618",
+        "name": "JD.com",
+        "sector": "E-Commerce",
+        "currency": "HKD",
+    },
+    {
+        "symbol": "9999.HK",
+        "code": "9999",
+        "name": "NetEase",
+        "sector": "Internet",
+        "currency": "HKD",
+    },
+    {
+        "symbol": "9888.HK",
+        "code": "9888",
+        "name": "Baidu",
+        "sector": "Internet",
+        "currency": "HKD",
+    },
+    {
+        "symbol": "0981.HK",
+        "code": "0981",
+        "name": "SMIC",
+        "sector": "Semiconductors",
+        "currency": "HKD",
+    },
+    {
+        "symbol": "0992.HK",
+        "code": "0992",
+        "name": "Lenovo Group",
+        "sector": "Consumer Electronics",
+        "currency": "HKD",
+    },
+    {
+        "symbol": "0020.HK",
+        "code": "0020",
+        "name": "SenseTime",
+        "sector": "Internet",
+        "currency": "HKD",
+    },
+    {
+        "symbol": "2382.HK",
+        "code": "2382",
+        "name": "Sunny Optical",
+        "sector": "Consumer Electronics",
         "currency": "HKD",
     },
 ]
@@ -141,6 +204,37 @@ INDICATOR_METADATA = {
         "label": "Factor Score",
         "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
         "unit": "score",
+    },
+    "open_price": {
+        "label": "开盘价",
+        "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+        "unit": "HKD",
+    },
+    "high_low": {
+        "label": "最高 / 最低",
+        "description": "当日盘中最高价与最低价。",
+        "unit": "HKD",
+    },
+    "amplitude": {
+        "label": "振幅",
+        "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+        "unit": "%",
+        "formula": "(high - low) / previous_close * 100",
+    },
+    "volume_ratio": {
+        "label": "量比",
+        "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+        "unit": "ratio",
+    },
+    "bid_ask": {
+        "label": "买卖盘",
+        "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+        "unit": "HKD",
+    },
+    "intraday_change": {
+        "label": "今 / 昨涨跌",
+        "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+        "unit": "%",
     },
 }
 
@@ -408,52 +502,281 @@ class MarketDataProvider(Protocol):
         ...
 
 
+def _digits(value: str) -> str:
+    return "".join(ch for ch in str(value) if ch.isdigit())
+
+
+def normalize_hk_symbol(raw: str) -> str:
+    """Normalise user input like '700', '0700', '0700.hk' to Yahoo form '0700.HK'."""
+    code = _digits(raw)
+    if not code:
+        raise ValueError(f"无法从 {raw!r} 解析出港股代码")
+    if len(code) < 4:
+        code = code.zfill(4)
+    return f"{code}.HK"
+
+
+def _tencent_code(symbol: str) -> str:
+    return "hk" + _digits(symbol).zfill(5)
+
+
+def _fetch_yahoo_chart(symbol: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Fetch ``(meta, history)`` for one symbol from the v8 chart endpoint.
+
+    Every host in ``YAHOO_HOSTS`` is tried before giving up, so a per-host
+    429/5xx on one Yahoo edge does not take the whole refresh down.
+    """
+    params = urllib.parse.urlencode(
+        {"range": DEFAULT_RANGE, "interval": DEFAULT_INTERVAL, "includePrePost": "false"}
+    )
+    last_error: Exception | None = None
+    for host in YAHOO_HOSTS:
+        url = f"{YAHOO_CHART_URL.format(host=host, symbol=symbol)}?{params}"
+        try:
+            payload = _fetch_json(url)
+            result = payload.get("chart", {}).get("result")
+            if not result:
+                error = payload.get("chart", {}).get("error")
+                raise RuntimeError(f"missing chart data for {symbol}: {error}")
+            return result[0].get("meta", {}), _extract_history(result[0])
+        except Exception as exc:  # noqa: BLE001 — try the next host
+            last_error = exc
+    raise RuntimeError(f"all Yahoo hosts failed for {symbol}: {last_error}")
+
+
+def _parse_tencent_line(line: str) -> dict[str, Any] | None:
+    """Parse one ``v_hkXXXXX="100~name~code~price~prevclose~..."`` payload line."""
+    body = line.split('="', 1)
+    if len(body) != 2:
+        return None
+    parts = body[1].rstrip('";').split("~")
+
+    def at(index: int) -> float | None:
+        return _as_float(parts[index]) if index < len(parts) else None
+
+    if at(3) is None:
+        return None
+    as_of: str | None = None
+    if len(parts) > 30 and parts[30]:
+        try:
+            naive = datetime.strptime(parts[30].strip(), "%Y/%m/%d %H:%M:%S")
+            as_of = (
+                naive.replace(tzinfo=timezone(timedelta(hours=8)))
+                .astimezone(timezone.utc)
+                .isoformat(timespec="seconds")
+            )
+        except ValueError:
+            as_of = None
+    return {
+        "name": parts[1] if len(parts) > 1 else None,
+        "price": at(3),
+        "previous_close": at(4),
+        "open": at(5),
+        "volume": at(6),
+        "change_pct": at(32),
+        "high": at(33),
+        "low": at(34),
+        "turnover_value": at(37),
+        "pe_ttm": at(39),
+        "amplitude_pct": at(43),
+        "market_cap": (at(44) * 1e8) if at(44) else None,
+        "volume_ratio": at(50),
+        "pb_ratio": at(58),
+        "turnover_rate_pct": at(59),
+        "total_shares": at(69),
+        "as_of": as_of,
+    }
+
+
+def _sina_code(symbol: str) -> str:
+    return "rt_hk" + _digits(symbol).zfill(5)
+
+
+def _fetch_sina_quotes(symbols: list[str]) -> dict[str, dict[str, Any]]:
+    """Best bid / ask (买一价 / 卖一价) from Sina's HK feed.
+
+    Requires a ``finance.sina.com.cn`` Referer. HK free quotes expose only the
+    top-of-book price (no depth / sizes), so this returns ``{symbol: {"bid":..,
+    "ask":..}}``; closed-market or missing values come back as ``None``."""
+    if not symbols:
+        return {}
+    codes = ",".join(_sina_code(symbol) for symbol in symbols)
+    url = SINA_QUOTE_URL.format(codes=codes)
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": USER_AGENT, "Referer": "https://finance.sina.com.cn"},
+    )
+    with urllib.request.urlopen(request, timeout=HTTP_TIMEOUT_SECONDS) as response:  # noqa: S310
+        if response.status != 200:
+            raise RuntimeError(f"unexpected HTTP {response.status} for Sina quote")
+        text = response.read().decode("gbk", errors="replace")
+    quotes: dict[str, dict[str, Any]] = {}
+    for symbol, raw_line in zip(symbols, text.strip().splitlines()):
+        body = raw_line.split('="', 1)
+        if len(body) != 2:
+            continue
+        parts = body[1].rstrip('";').split(",")
+        if len(parts) < 11:
+            continue
+        bid = _as_float(parts[9])
+        ask = _as_float(parts[10])
+        quotes[symbol] = {"bid": bid or None, "ask": ask or None}
+    return quotes
+
+
+def _fetch_tencent_quotes(symbols: list[str]) -> dict[str, dict[str, Any]]:
+    if not symbols:
+        return {}
+    codes = ",".join(_tencent_code(symbol) for symbol in symbols)
+    url = TENCENT_QUOTE_URL.format(codes=codes)
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(request, timeout=HTTP_TIMEOUT_SECONDS) as response:  # noqa: S310
+        if response.status != 200:
+            raise RuntimeError(f"unexpected HTTP {response.status} for Tencent quote")
+        text = response.read().decode("gbk", errors="replace")
+    quotes: dict[str, dict[str, Any]] = {}
+    for symbol, raw_line in zip(symbols, text.strip().splitlines()):
+        parsed = _parse_tencent_line(raw_line)
+        if parsed:
+            quotes[symbol] = parsed
+    return quotes
+
+
+def _yahoo_quote_from_meta(
+    meta: dict[str, Any], enrichment: dict[str, Any] | None
+) -> dict[str, Any]:
+    """Adapt v8 chart ``meta`` into the v7-quote-shaped dict ``_build_stock_entry``
+    expects. ``previous_close`` is intentionally omitted so the indicator layer
+    derives the daily reference from ``closes[-2]`` (chart meta only exposes the
+    *range* previous close, not the prior *daily* close)."""
+    price = _as_float(meta.get("regularMarketPrice"))
+    quote: dict[str, Any] = {
+        "regularMarketPrice": price,
+        "regularMarketVolume": _as_int(meta.get("regularMarketVolume")),
+        "regularMarketTime": meta.get("regularMarketTime"),
+        "fullExchangeName": meta.get("fullExchangeName"),
+        "exchange": meta.get("exchangeName"),
+    }
+    # Chart meta carries no P/E; surface Tencent's TTM P/E via an implied EPS so
+    # the indicator layer recomputes a consistent pe_ttm = price / eps.
+    if enrichment and price:
+        pe = _as_float(enrichment.get("pe_ttm"))
+        if pe and pe > 0:
+            quote["epsTrailingTwelveMonths"] = round(price / pe, 4)
+    return quote
+
+
 class YahooFinanceProvider:
     name = "yahoo-finance"
 
     def fetch(self, watchlist: list[dict[str, Any]]) -> dict[str, Any]:
-        quotes = self._fetch_quotes(watchlist)
+        symbols = [item["symbol"] for item in watchlist]
+        try:
+            enrichment = _fetch_tencent_quotes(symbols)
+        except Exception:
+            enrichment = {}
+        try:
+            sina = _fetch_sina_quotes(symbols)
+        except Exception:
+            sina = {}
         items: list[dict[str, Any]] = []
         quote_timestamp: str | None = None
+        yahoo_ok = 0
+        degraded = 0
         for stock in watchlist:
             symbol = stock["symbol"]
-            quote = quotes.get(symbol)
-            if not quote:
-                raise RuntimeError(f"missing live quote for {symbol}")
-            history = self._fetch_chart(symbol)
-            items.append(_build_stock_entry(stock, quote, history, source_mode="live"))
-            quote_timestamp = quote_timestamp or _timestamp_to_iso(
-                quote.get("regularMarketTime")
-            )
+            tencent = enrichment.get(symbol)
+            try:
+                meta, history = _fetch_yahoo_chart(symbol)
+                quote = _yahoo_quote_from_meta(meta, tencent)
+                entry = _build_stock_entry(stock, quote, history, source_mode="live")
+                if tencent and tencent.get("turnover_value"):
+                    entry["liquidity"]["turnover_value"] = round(
+                        float(tencent["turnover_value"]), 2
+                    )
+                _attach_intraday(entry, tencent, sina.get(symbol), history)
+                yahoo_ok += 1
+                quote_timestamp = quote_timestamp or _timestamp_to_iso(
+                    meta.get("regularMarketTime")
+                )
+            except Exception:
+                # Per-symbol resilience: if a Yahoo host is rate-limited for this
+                # symbol, serve Tencent's quote-only entry instead of failing the
+                # whole batch (so other symbols keep their full indicators).
+                if not tencent:
+                    raise
+                entry = _build_quote_only_entry(stock, tencent)
+                _attach_intraday(entry, tencent, sina.get(symbol), None)
+                degraded += 1
+                quote_timestamp = quote_timestamp or tencent.get("as_of")
+            items.append(entry)
+        if yahoo_ok == 0:
+            raise RuntimeError("no symbol could be fetched from Yahoo chart hosts")
+        warning = (
+            f"{degraded}/{len(items)} 只标的因 Yahoo 限流改用腾讯 quote-only 数据（技术指标受限）。"
+            if degraded
+            else None
+        )
         return {
             "provider": {
                 "name": self.name,
                 "mode": "live",
                 "fallback_used": False,
-                "warning": None,
-                "source": "Yahoo Finance public chart/quote endpoints",
+                "warning": warning,
+                "source": (
+                    "Yahoo Finance v8 chart endpoint (multi-host) "
+                    "with Tencent P/E enrichment + per-symbol quote fallback"
+                ),
             },
             "as_of": quote_timestamp or _now_iso(),
             "watchlist": items,
         }
 
-    def _fetch_quotes(self, watchlist: list[dict[str, Any]]) -> dict[str, Any]:
-        symbols = ",".join(item["symbol"] for item in watchlist)
-        url = f"{YAHOO_QUOTE_URL}?{urllib.parse.urlencode({'symbols': symbols})}"
-        payload = _fetch_json(url)
-        results = payload.get("quoteResponse", {}).get("result", [])
-        return {item["symbol"]: item for item in results if item.get("symbol")}
 
-    def _fetch_chart(self, symbol: str) -> dict[str, Any]:
-        params = urllib.parse.urlencode(
-            {"range": DEFAULT_RANGE, "interval": DEFAULT_INTERVAL, "includePrePost": "false"}
-        )
-        payload = _fetch_json(f"{YAHOO_CHART_URL.format(symbol=symbol)}?{params}")
-        result = payload.get("chart", {}).get("result")
-        if not result:
-            error = payload.get("chart", {}).get("error")
-            raise RuntimeError(f"missing chart data for {symbol}: {error}")
-        return _extract_history(result[0])
+class TencentProvider:
+    """Independent secondary source (qt.gtimg.cn).
+
+    Quote-only: it returns last price / previous close / volume / turnover /
+    TTM P/E but no OHLC history, so price-series indicators (MA, RSI, MACD,
+    Bollinger, volatility) are left unavailable and flagged ``LIMITED_HISTORY``.
+    Used as a live fallback when every Yahoo host is rate-limited or down.
+    """
+
+    name = "tencent-finance"
+
+    def fetch(self, watchlist: list[dict[str, Any]]) -> dict[str, Any]:
+        symbols = [item["symbol"] for item in watchlist]
+        quotes = _fetch_tencent_quotes(symbols)
+        if not quotes:
+            raise RuntimeError("Tencent returned no parseable quotes")
+        try:
+            sina = _fetch_sina_quotes(symbols)
+        except Exception:
+            sina = {}
+        items: list[dict[str, Any]] = []
+        as_of: str | None = None
+        for stock in watchlist:
+            quote = quotes.get(stock["symbol"])
+            if not quote:
+                raise RuntimeError(f"missing Tencent quote for {stock['symbol']}")
+            entry = _build_quote_only_entry(stock, quote)
+            _attach_intraday(entry, quote, sina.get(stock["symbol"]), None)
+            items.append(entry)
+            as_of = as_of or quote.get("as_of")
+        return {
+            "provider": {
+                "name": self.name,
+                "mode": "live-quote",
+                "fallback_used": False,
+                "warning": (
+                    "Tencent quote-only source: technical indicators limited "
+                    "(no OHLC history)."
+                ),
+                "source": "Tencent qt.gtimg.cn public HK quote endpoint",
+            },
+            "as_of": as_of or _now_iso(),
+            "watchlist": items,
+        }
 
 
 class MockHKStockProvider:
@@ -1028,6 +1351,98 @@ def _build_stock_entry(
     return entry
 
 
+def _build_quote_only_entry(
+    stock: dict[str, Any], quote: dict[str, Any]
+) -> dict[str, Any]:
+    """Build a stock entry from a quote-only source (no OHLC history).
+
+    Price-series indicators come out as ``None`` and the entry is tagged with a
+    ``LIMITED_HISTORY`` risk flag so the UI can be explicit about the gap."""
+    price = _as_float(quote.get("price"))
+    yquote: dict[str, Any] = {
+        "regularMarketPrice": price,
+        "regularMarketPreviousClose": _as_float(quote.get("previous_close")),
+        "regularMarketVolume": _as_int(quote.get("volume")),
+        "regularMarketTime": None,
+        "fullExchangeName": "HKSE",
+        "exchange": "HKG",
+    }
+    pe = _as_float(quote.get("pe_ttm"))
+    if pe and pe > 0 and price:
+        yquote["epsTrailingTwelveMonths"] = round(price / pe, 4)
+    history: dict[str, Any] = {"timestamps": [], "closes": [], "volumes": []}
+    entry = _build_stock_entry(stock, yquote, history, source_mode="live-quote")
+    if quote.get("as_of"):
+        entry["as_of"] = quote["as_of"]
+    if quote.get("turnover_value"):
+        entry["liquidity"]["turnover_value"] = round(float(quote["turnover_value"]), 2)
+    flags = entry["metadata"]["risk_flags"]
+    if "LIMITED_HISTORY" not in flags:
+        flags.append("LIMITED_HISTORY")
+    return entry
+
+
+def _attach_intraday(
+    entry: dict[str, Any],
+    tencent: dict[str, Any] | None,
+    sina: dict[str, Any] | None,
+    history: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Attach today's micro-structure block — open / high / low / amplitude /
+    turnover rate / volume ratio / best bid-ask — plus yesterday's change.
+
+    Also backfills ``liquidity.turnover_rate_pct`` and ``valuation.market_cap /
+    pb_ratio`` from Tencent when the primary source did not provide them (e.g.
+    live Yahoo-chart mode, where fundamentals are otherwise unavailable)."""
+    prev_close = entry["price"].get("previous_close")
+    block: dict[str, Any] = {
+        "open": None,
+        "high": None,
+        "low": None,
+        "amplitude_pct": None,
+        "volume_ratio": None,
+        "bid": None,
+        "ask": None,
+        "spread": None,
+        "prev_close": prev_close,
+        "prev_change_pct": None,
+    }
+    if tencent:
+        block["open"] = tencent.get("open")
+        block["high"] = tencent.get("high")
+        block["low"] = tencent.get("low")
+        block["amplitude_pct"] = tencent.get("amplitude_pct")
+        block["volume_ratio"] = tencent.get("volume_ratio")
+        if tencent.get("turnover_rate_pct") is not None:
+            entry["liquidity"]["turnover_rate_pct"] = _safe_pct(
+                tencent["turnover_rate_pct"]
+            )
+        if entry["valuation"].get("market_cap") is None and tencent.get("market_cap"):
+            entry["valuation"]["market_cap"] = tencent["market_cap"]
+        if entry["valuation"].get("pb_ratio") is None and tencent.get("pb_ratio"):
+            entry["valuation"]["pb_ratio"] = tencent["pb_ratio"]
+    # Fallback amplitude from high/low/prev_close if the source omitted it.
+    if (
+        block["amplitude_pct"] is None
+        and block["high"] is not None
+        and block["low"] is not None
+        and prev_close
+    ):
+        block["amplitude_pct"] = _safe_pct((block["high"] - block["low"]) / prev_close * 100)
+    if sina:
+        block["bid"] = sina.get("bid")
+        block["ask"] = sina.get("ask")
+        if block["bid"] and block["ask"]:
+            block["spread"] = round(block["ask"] - block["bid"], 4)
+    # Yesterday's change needs daily history: closes[-1]=today, [-2]=yesterday,
+    # [-3]=the day before. Only available when a chart series was fetched.
+    closes = (history or {}).get("closes") or []
+    if len(closes) >= 3 and closes[-3]:
+        block["prev_change_pct"] = _safe_pct((closes[-2] - closes[-3]) / closes[-3] * 100)
+    entry["intraday"] = block
+    return entry
+
+
 def _pick_price(quote: dict[str, Any], closes: list[float]) -> float | None:
     for key in ("regularMarketPrice", "postMarketPrice", "preMarketPrice"):
         value = _as_float(quote.get(key))
@@ -1061,8 +1476,28 @@ def _normalize_yield(value: Any) -> float | None:
     return raw * 100 if raw <= 1 else raw
 
 
+def _mock_config_for(symbol: str) -> dict[str, float]:
+    """Return the curated mock config for ``symbol`` or a deterministic synthetic
+    one, so any newly-added or custom symbol still renders in mock/fallback mode."""
+    if symbol in MOCK_STOCK_CONFIG:
+        return MOCK_STOCK_CONFIG[symbol]
+    seed = int(hashlib.sha1(symbol.encode("utf-8")).hexdigest(), 16)
+    base_price = round(8 + (seed % 4200) / 10, 2)
+    return {
+        "base_price": base_price,
+        "trend_pct": round(0.0010 + (seed % 25) / 10000, 4),
+        "amplitude_pct": round(0.012 + (seed % 30) / 1000, 4),
+        "volume_base": 4_000_000 + (seed % 50) * 1_000_000,
+        "market_cap": float(180_000_000_000 + (seed % 4000) * 1_000_000_000),
+        "shares_outstanding": int(2_000_000_000 + (seed % 200) * 100_000_000),
+        "eps_ttm": round(0.3 + (seed % 900) / 100, 2),
+        "book_value": round(base_price * (0.4 + (seed % 50) / 100), 2),
+        "dividend_yield_pct": round((seed % 700) / 100, 2),
+    }
+
+
 def _build_mock_stock_entry(stock: dict[str, Any], index: int) -> dict[str, Any]:
-    config = MOCK_STOCK_CONFIG[stock["symbol"]]
+    config = _mock_config_for(stock["symbol"])
     closes, volumes = _generate_mock_series(config, index)
     price = closes[-1]
     previous_close = closes[-2]
@@ -1100,6 +1535,7 @@ def _build_mock_stock_entry(stock: dict[str, Any], index: int) -> dict[str, Any]
             "indicator_explanations": INDICATOR_METADATA,
         },
     }
+    _attach_intraday(entry, None, None, {"closes": closes})
     factor, primary_alert, alerts = _build_alert_factor(entry, closes)
     entry["factor"] = factor
     entry["alert"] = primary_alert
@@ -1187,6 +1623,86 @@ def write_hk_stock_snapshot(payload: dict[str, Any], path: Path = DATA_PATH) -> 
     )
 
 
+def load_custom_watchlist(path: Path = WATCHLIST_PATH) -> list[dict[str, Any]]:
+    """Return the user-defined watchlist persisted in ``data/watchlist.json``."""
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+    entries = data.get("custom") if isinstance(data, dict) else data
+    return [item for item in entries if isinstance(item, dict)] if isinstance(entries, list) else []
+
+
+def _write_custom_watchlist(
+    entries: list[dict[str, Any]], path: Path = WATCHLIST_PATH
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"version": 1, "updated_at": _now_iso(), "custom": entries}
+    path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def combined_watchlist() -> list[dict[str, Any]]:
+    """Default HK tech watchlist plus persisted custom symbols (deduplicated)."""
+    seen = {item["symbol"] for item in HK_WATCHLIST}
+    combined = [dict(item) for item in HK_WATCHLIST]
+    for entry in load_custom_watchlist():
+        symbol = entry.get("symbol")
+        if not symbol or symbol in seen:
+            continue
+        seen.add(symbol)
+        combined.append({**entry, "custom": True})
+    return combined
+
+
+def _resolve_symbol_name(symbol: str) -> str | None:
+    try:
+        quote = _fetch_tencent_quotes([symbol]).get(symbol)
+    except Exception:
+        return None
+    return quote.get("name") if quote else None
+
+
+def add_custom_watchlist(
+    raw_symbol: str,
+    *,
+    name: str | None = None,
+    sector: str | None = None,
+    currency: str = "HKD",
+    path: Path = WATCHLIST_PATH,
+) -> dict[str, Any]:
+    """Validate, dedupe and persist a custom symbol; returns the stored entry."""
+    symbol = normalize_hk_symbol(raw_symbol)
+    if symbol in {item["symbol"] for item in HK_WATCHLIST}:
+        raise ValueError(f"{symbol} 已在默认监控池中")
+    entries = load_custom_watchlist(path=path)
+    if any(entry.get("symbol") == symbol for entry in entries):
+        raise ValueError(f"{symbol} 已在自选列表中")
+    entry = {
+        "symbol": symbol,
+        "code": _digits(symbol).zfill(4),
+        "name": (name or _resolve_symbol_name(symbol) or symbol),
+        "sector": sector or "自选",
+        "currency": currency,
+    }
+    entries.append(entry)
+    _write_custom_watchlist(entries, path=path)
+    return entry
+
+
+def remove_custom_watchlist(raw_symbol: str, *, path: Path = WATCHLIST_PATH) -> bool:
+    symbol = normalize_hk_symbol(raw_symbol)
+    entries = load_custom_watchlist(path=path)
+    remaining = [entry for entry in entries if entry.get("symbol") != symbol]
+    if len(remaining) == len(entries):
+        return False
+    _write_custom_watchlist(remaining, path=path)
+    return True
+
+
 def load_hk_stock_snapshot(
     *,
     refresh: bool = False,
@@ -1199,6 +1715,7 @@ def load_hk_stock_snapshot(
 
 
 def refresh_hk_stock_snapshot(path: Path = DATA_PATH) -> dict[str, Any]:
+    watchlist = combined_watchlist()
     provider_name = os.getenv(ENV_PROVIDER, "").strip().lower()
     allow_live = os.getenv(ENV_ALLOW_LIVE, "1").strip().lower() not in {"0", "false", "no"}
     if provider_name == "mock" or not allow_live:
@@ -1206,21 +1723,155 @@ def refresh_hk_stock_snapshot(path: Path = DATA_PATH) -> dict[str, Any]:
             MockHKStockProvider(
                 reason="Live provider disabled by environment; using embedded development snapshot.",
                 mode="mock-configured",
-            ).fetch(HK_WATCHLIST)
+            ).fetch(watchlist)
         )
         write_hk_stock_snapshot(payload, path=path)
         return payload
 
-    try:
-        payload = _build_payload(YahooFinanceProvider().fetch(HK_WATCHLIST))
-    except Exception as exc:
-        payload = _build_payload(
-            MockHKStockProvider(
-                reason=f"Live Yahoo Finance fetch failed; using embedded snapshot. Details: {exc}",
-            ).fetch(HK_WATCHLIST)
-        )
+    # Multi-source fallback chain: Yahoo chart (multi-host) → Tencent → mock.
+    if provider_name == "tencent":
+        chain: list[MarketDataProvider] = [TencentProvider()]
+    else:
+        chain = [YahooFinanceProvider(), TencentProvider()]
+
+    errors: list[str] = []
+    for provider in chain:
+        try:
+            payload = _build_payload(provider.fetch(watchlist))
+            write_hk_stock_snapshot(payload, path=path)
+            return payload
+        except Exception as exc:  # noqa: BLE001 — fall through to the next source
+            errors.append(f"{provider.name}: {exc}")
+
+    payload = _build_payload(
+        MockHKStockProvider(
+            reason=(
+                "All live sources failed; using embedded snapshot. "
+                + "; ".join(errors)
+            ),
+        ).fetch(watchlist)
+    )
     write_hk_stock_snapshot(payload, path=path)
     return payload
+
+
+def _single_payload(
+    entry: dict[str, Any],
+    *,
+    mode: str,
+    source: str,
+    as_of: str | None,
+    warning: str | None = None,
+    fallback_used: bool = False,
+) -> dict[str, Any]:
+    return {
+        "version": 1,
+        "market": "HK",
+        "generated_at": _now_iso(),
+        "as_of": as_of or _now_iso(),
+        "provider": {
+            "name": mode,
+            "mode": mode,
+            "fallback_used": fallback_used,
+            "warning": warning,
+            "source": source,
+        },
+        "disclaimer": (
+            "Quotes may be delayed and can fall back to embedded development data. "
+            "Do not use this payload as the sole basis for any trading decision."
+        ),
+        "stock": entry,
+        "metadata": {"indicator_definitions": INDICATOR_METADATA},
+    }
+
+
+def fetch_single_quote(
+    raw_symbol: str,
+    *,
+    name: str | None = None,
+    sector: str | None = None,
+    currency: str = "HKD",
+) -> dict[str, Any]:
+    """On-demand real-time quote for a single symbol via the live source chain.
+
+    Falls back to a deterministic mock entry (flagged) when every live source is
+    unavailable, mirroring the batch snapshot behaviour."""
+    symbol = normalize_hk_symbol(raw_symbol)
+    stock = next(
+        (item for item in combined_watchlist() if item["symbol"] == symbol), None
+    )
+    if stock is None:
+        stock = {
+            "symbol": symbol,
+            "code": _digits(symbol).zfill(4),
+            "name": name or _resolve_symbol_name(symbol) or symbol,
+            "sector": sector or "自选",
+            "currency": currency,
+        }
+
+    provider_name = os.getenv(ENV_PROVIDER, "").strip().lower()
+    allow_live = os.getenv(ENV_ALLOW_LIVE, "1").strip().lower() not in {"0", "false", "no"}
+    errors: list[str] = []
+
+    if allow_live and provider_name != "mock":
+        if provider_name != "tencent":
+            try:
+                meta, history = _fetch_yahoo_chart(symbol)
+                try:
+                    enrichment = _fetch_tencent_quotes([symbol])
+                except Exception:
+                    enrichment = {}
+                tencent = enrichment.get(symbol)
+                try:
+                    sina = _fetch_sina_quotes([symbol]).get(symbol)
+                except Exception:
+                    sina = None
+                quote = _yahoo_quote_from_meta(meta, tencent)
+                entry = _build_stock_entry(stock, quote, history, source_mode="live")
+                if tencent and tencent.get("turnover_value"):
+                    entry["liquidity"]["turnover_value"] = round(
+                        float(tencent["turnover_value"]), 2
+                    )
+                _attach_intraday(entry, tencent, sina, history)
+                return _single_payload(
+                    entry,
+                    mode="live",
+                    source="Yahoo v8 chart (multi-host) + Tencent P/E",
+                    as_of=_timestamp_to_iso(meta.get("regularMarketTime")),
+                )
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"yahoo: {exc}")
+        try:
+            quote = _fetch_tencent_quotes([symbol]).get(symbol)
+            if quote:
+                try:
+                    sina = _fetch_sina_quotes([symbol]).get(symbol)
+                except Exception:
+                    sina = None
+                entry = _build_quote_only_entry(stock, quote)
+                _attach_intraday(entry, quote, sina, None)
+                return _single_payload(
+                    entry,
+                    mode="live-quote",
+                    source="Tencent qt.gtimg.cn",
+                    as_of=quote.get("as_of"),
+                    warning="Tencent quote-only：技术指标受限（无历史 K 线）。",
+                )
+            errors.append("tencent: 无报价")
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"tencent: {exc}")
+
+    entry = _build_mock_stock_entry(stock, 1)
+    detail = ("详情：" + "; ".join(errors)) if errors else ""
+    return _single_payload(
+        entry,
+        mode="mock-fallback",
+        source="Embedded deterministic snapshot",
+        as_of=_now_iso(),
+        warning="实时数据源不可用，返回 mock 回退。" + detail,
+        fallback_used=True,
+    )
+
 
 
 def main() -> int:

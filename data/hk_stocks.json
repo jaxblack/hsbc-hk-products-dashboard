@@ -1,13 +1,13 @@
 {
   "version": 1,
   "market": "HK",
-  "generated_at": "2026-06-26T03:51:58+00:00",
-  "as_of": "2026-06-26T03:51:58+00:00",
+  "generated_at": "2026-06-26T06:47:21+00:00",
+  "as_of": "2026-06-26T06:47:21+00:00",
   "provider": {
     "name": "embedded-mock",
-    "mode": "mock-fallback",
+    "mode": "mock-configured",
     "fallback_used": true,
-    "warning": "Live Yahoo Finance fetch failed; using embedded snapshot. Details: HTTP Error 429: Too Many Requests",
+    "warning": "Live provider disabled by environment; using embedded development snapshot.",
     "source": "Embedded deterministic development snapshot"
   },
   "disclaimer": "Quotes may be delayed and can fall back to embedded development data. Do not use this payload as the sole basis for any trading decision.",
@@ -18,7 +18,7 @@
       "name": "HSBC Holdings",
       "sector": "Banking",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:51:58+00:00",
+      "as_of": "2026-06-26T06:47:21+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -199,8 +199,51 @@
             "label": "Factor Score",
             "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
             "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
           }
         }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 70.0838,
+        "prev_change_pct": -0.0274
       },
       "factor": {
         "score": 78.7,
@@ -237,7 +280,7 @@
       "name": "Tencent Holdings",
       "sector": "Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:51:58+00:00",
+      "as_of": "2026-06-26T06:47:21+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -418,8 +461,51 @@
             "label": "Factor Score",
             "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
             "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
           }
         }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 443.011,
+        "prev_change_pct": 0.4923
       },
       "factor": {
         "score": 93.2,
@@ -456,7 +542,7 @@
       "name": "China Mobile",
       "sector": "Telecom",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:51:58+00:00",
+      "as_of": "2026-06-26T06:47:21+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -637,8 +723,51 @@
             "label": "Factor Score",
             "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
             "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
           }
         }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 76.1424,
+        "prev_change_pct": 0.1582
       },
       "factor": {
         "score": 70.0,
@@ -675,7 +804,7 @@
       "name": "AIA Group",
       "sector": "Insurance",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:51:58+00:00",
+      "as_of": "2026-06-26T06:47:21+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -856,8 +985,51 @@
             "label": "Factor Score",
             "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
             "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
           }
         }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 60.1575,
+        "prev_change_pct": -0.0938
       },
       "factor": {
         "score": 63.3,
@@ -894,7 +1066,7 @@
       "name": "Xiaomi",
       "sector": "Consumer Electronics",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:51:58+00:00",
+      "as_of": "2026-06-26T06:47:21+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1075,8 +1247,51 @@
             "label": "Factor Score",
             "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
             "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
           }
         }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 22.2664,
+        "prev_change_pct": 0.0476
       },
       "factor": {
         "score": 82.5,
@@ -1131,7 +1346,7 @@
       "name": "Ping An Insurance",
       "sector": "Insurance",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:51:58+00:00",
+      "as_of": "2026-06-26T06:47:21+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1312,8 +1527,51 @@
             "label": "Factor Score",
             "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
             "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
           }
         }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 51.1282,
+        "prev_change_pct": 0.3273
       },
       "factor": {
         "score": 94.3,
@@ -1350,7 +1608,7 @@
       "name": "Meituan",
       "sector": "Consumer Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:51:58+00:00",
+      "as_of": "2026-06-26T06:47:21+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1531,8 +1789,51 @@
             "label": "Factor Score",
             "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
             "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
           }
         }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 138.4286,
+        "prev_change_pct": 0.5833
       },
       "factor": {
         "score": 91.8,
@@ -1569,7 +1870,7 @@
       "name": "Alibaba Group",
       "sector": "E-Commerce",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:51:58+00:00",
+      "as_of": "2026-06-26T06:47:21+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1750,8 +2051,51 @@
             "label": "Factor Score",
             "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
             "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
           }
         }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 94.0999,
+        "prev_change_pct": 0.3236
       },
       "factor": {
         "score": 85.9,
@@ -1781,10 +2125,2176 @@
           ]
         }
       ]
+    },
+    {
+      "symbol": "1024.HK",
+      "code": "1024",
+      "name": "Kuaishou",
+      "sector": "Internet",
+      "currency": "HKD",
+      "as_of": "2026-06-26T06:47:21+00:00",
+      "exchange": "Hong Kong",
+      "source_mode": "mock",
+      "price": {
+        "value": 26.0418,
+        "previous_close": 25.9955,
+        "formatted": "26.04"
+      },
+      "change": {
+        "absolute": 0.0463,
+        "percent": 0.1781,
+        "direction": "up"
+      },
+      "liquidity": {
+        "volume": 53088335,
+        "turnover_value": 1382515802.4,
+        "turnover_rate_pct": 0.3318
+      },
+      "volatility": {
+        "daily_30d_pct": 0.2745,
+        "annualized_30d_pct": 4.3583
+      },
+      "moving_averages": {
+        "ma5": 25.9959,
+        "ma10": 26.0521,
+        "ma20": 25.9623,
+        "ma50": 24.9604
+      },
+      "momentum": {
+        "rsi14": 54.576,
+        "macd": {
+          "line": 0.3321,
+          "signal": 0.4131,
+          "histogram": -0.081
+        }
+      },
+      "bands": {
+        "bollinger": {
+          "middle": 25.9623,
+          "upper": 26.4104,
+          "lower": 25.5143,
+          "bandwidth_pct": 3.4518
+        }
+      },
+      "valuation": {
+        "market_cap": 3720000000000.0,
+        "pe_ttm": 5.5408,
+        "pb_ratio": 1.4796,
+        "eps_ttm": 4.7,
+        "dividend_yield_pct": 1.4
+      },
+      "history": {
+        "range": "synthetic-80d",
+        "interval": "1d",
+        "close_series": [
+          22.7458,
+          22.7171,
+          22.7008,
+          22.7008,
+          22.7203,
+          22.7615,
+          22.8256,
+          22.8957,
+          22.988,
+          23.1004,
+          23.2301,
+          23.3733,
+          23.5257,
+          23.6824,
+          23.8384,
+          23.9888,
+          24.1109,
+          24.2186,
+          24.3088,
+          24.3794,
+          24.4297,
+          24.46,
+          24.472,
+          24.4685,
+          24.4534,
+          24.4129,
+          24.3704,
+          24.3311,
+          24.3003,
+          24.2826,
+          24.2823,
+          24.3028,
+          24.3465,
+          24.4146,
+          24.4893,
+          24.5876,
+          24.7075,
+          24.846,
+          24.999,
+          25.1619,
+          25.3295,
+          25.4965,
+          25.6575,
+          25.7885,
+          25.904,
+          26.0009,
+          26.0768,
+          26.131,
+          26.1638,
+          26.177,
+          26.1736,
+          26.1577,
+          26.1144,
+          26.069,
+          26.0269,
+          25.9938,
+          25.9746,
+          25.974,
+          25.9955,
+          26.0418
+        ]
+      },
+      "metadata": {
+        "risk_flags": [
+          "MOCK_DATA",
+          "NOT_FOR_TRADING",
+          "DEV_FALLBACK"
+        ],
+        "indicator_explanations": {
+          "price": {
+            "label": "最新价",
+            "description": "最新可得成交价或收盘价，延迟与否取决于上游源。",
+            "unit": "HKD"
+          },
+          "change_percent": {
+            "label": "涨跌幅",
+            "description": "相对前收盘的百分比变化，用于识别日内强弱。",
+            "unit": "%",
+            "formula": "((price - previous_close) / previous_close) * 100"
+          },
+          "turnover_value": {
+            "label": "成交额",
+            "description": "以最新价乘当日成交量估算的成交额。",
+            "unit": "HKD",
+            "formula": "price * volume"
+          },
+          "turnover_rate": {
+            "label": "换手率",
+            "description": "成交量相对流通股本或总股本的近似比例，缺少股本时为空。",
+            "unit": "%",
+            "formula": "(volume / shares_outstanding) * 100"
+          },
+          "volatility_30d": {
+            "label": "30日波动率",
+            "description": "最近30个交易日收益率标准差，提供日度与年化两个口径。",
+            "unit": "%"
+          },
+          "moving_averages": {
+            "label": "移动均线",
+            "description": "MA5/10/20/50，用于观察趋势支撑与偏离程度。",
+            "unit": "HKD"
+          },
+          "rsi_14": {
+            "label": "RSI(14)",
+            "description": "14期相对强弱指标，常用来判断超买超卖。",
+            "unit": "index"
+          },
+          "macd": {
+            "label": "MACD",
+            "description": "12/26 EMA 差值与 9 EMA 信号线，用于衡量动量拐点。",
+            "unit": "HKD"
+          },
+          "bollinger_bands": {
+            "label": "布林带",
+            "description": "20日均线及上下2倍标准差通道，反映波动区间。",
+            "unit": "HKD"
+          },
+          "valuation": {
+            "label": "估值/股息",
+            "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
+            "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
+          }
+        }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 25.9955,
+        "prev_change_pct": 0.0828
+      },
+      "factor": {
+        "score": 85.6,
+        "factorScore": 85.6,
+        "band": "strong_bullish",
+        "components": {
+          "trend": 16.6,
+          "momentum": 4.0,
+          "risk_value": 15.0
+        }
+      },
+      "alert": {
+        "trigger": "trend_stack_bullish",
+        "severity": "low",
+        "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+        "matchedRules": [
+          "trend-stack-bullish"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
+    },
+    {
+      "symbol": "9618.HK",
+      "code": "9618",
+      "name": "JD.com",
+      "sector": "E-Commerce",
+      "currency": "HKD",
+      "as_of": "2026-06-26T06:47:21+00:00",
+      "exchange": "Hong Kong",
+      "source_mode": "mock",
+      "price": {
+        "value": 530.5521,
+        "previous_close": 529.5021,
+        "formatted": "530.55"
+      },
+      "change": {
+        "absolute": 1.05,
+        "percent": 0.1983,
+        "direction": "up"
+      },
+      "liquidity": {
+        "volume": 30317275,
+        "turnover_value": 16084893917.53,
+        "turnover_rate_pct": 0.1596
+      },
+      "volatility": {
+        "daily_30d_pct": 0.1083,
+        "annualized_30d_pct": 1.7193
+      },
+      "moving_averages": {
+        "ma5": 528.6563,
+        "ma10": 526.4469,
+        "ma20": 518.8612,
+        "ma50": 495.6576
+      },
+      "momentum": {
+        "rsi14": 100.0,
+        "macd": {
+          "line": 10.3915,
+          "signal": 10.7878,
+          "histogram": -0.3964
+        }
+      },
+      "bands": {
+        "bollinger": {
+          "middle": 518.8612,
+          "upper": 536.6217,
+          "lower": 501.1008,
+          "bandwidth_pct": 6.8459
+        }
+      },
+      "valuation": {
+        "market_cap": 1150000000000.0,
+        "pe_ttm": 88.4253,
+        "pb_ratio": 2.0806,
+        "eps_ttm": 6.0,
+        "dividend_yield_pct": 6.7
+      },
+      "history": {
+        "range": "synthetic-80d",
+        "interval": "1d",
+        "close_series": [
+          445.9216,
+          446.5563,
+          447.2786,
+          448.1195,
+          449.1064,
+          450.2623,
+          451.6045,
+          452.7374,
+          454.0688,
+          455.5951,
+          457.3054,
+          459.1825,
+          461.2035,
+          463.3406,
+          465.5626,
+          467.8364,
+          469.7075,
+          471.561,
+          473.3677,
+          475.103,
+          476.7482,
+          478.2914,
+          479.7284,
+          481.0627,
+          482.3058,
+          483.0421,
+          483.729,
+          484.3968,
+          485.0791,
+          485.8115,
+          486.63,
+          487.5688,
+          488.6589,
+          489.9271,
+          490.9529,
+          492.1889,
+          493.641,
+          495.3072,
+          497.1782,
+          499.2369,
+          501.4602,
+          503.8192,
+          506.2808,
+          508.3538,
+          510.4532,
+          512.5433,
+          514.5913,
+          516.5689,
+          518.4538,
+          520.2309,
+          521.8932,
+          523.4423,
+          524.417,
+          525.3046,
+          526.1305,
+          526.9263,
+          527.7278,
+          528.5734,
+          529.5021,
+          530.5521
+        ]
+      },
+      "metadata": {
+        "risk_flags": [
+          "MOCK_DATA",
+          "NOT_FOR_TRADING",
+          "DEV_FALLBACK"
+        ],
+        "indicator_explanations": {
+          "price": {
+            "label": "最新价",
+            "description": "最新可得成交价或收盘价，延迟与否取决于上游源。",
+            "unit": "HKD"
+          },
+          "change_percent": {
+            "label": "涨跌幅",
+            "description": "相对前收盘的百分比变化，用于识别日内强弱。",
+            "unit": "%",
+            "formula": "((price - previous_close) / previous_close) * 100"
+          },
+          "turnover_value": {
+            "label": "成交额",
+            "description": "以最新价乘当日成交量估算的成交额。",
+            "unit": "HKD",
+            "formula": "price * volume"
+          },
+          "turnover_rate": {
+            "label": "换手率",
+            "description": "成交量相对流通股本或总股本的近似比例，缺少股本时为空。",
+            "unit": "%",
+            "formula": "(volume / shares_outstanding) * 100"
+          },
+          "volatility_30d": {
+            "label": "30日波动率",
+            "description": "最近30个交易日收益率标准差，提供日度与年化两个口径。",
+            "unit": "%"
+          },
+          "moving_averages": {
+            "label": "移动均线",
+            "description": "MA5/10/20/50，用于观察趋势支撑与偏离程度。",
+            "unit": "HKD"
+          },
+          "rsi_14": {
+            "label": "RSI(14)",
+            "description": "14期相对强弱指标，常用来判断超买超卖。",
+            "unit": "index"
+          },
+          "macd": {
+            "label": "MACD",
+            "description": "12/26 EMA 差值与 9 EMA 信号线，用于衡量动量拐点。",
+            "unit": "HKD"
+          },
+          "bollinger_bands": {
+            "label": "布林带",
+            "description": "20日均线及上下2倍标准差通道，反映波动区间。",
+            "unit": "HKD"
+          },
+          "valuation": {
+            "label": "估值/股息",
+            "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
+            "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
+          }
+        }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 529.5021,
+        "prev_change_pct": 0.1757
+      },
+      "factor": {
+        "score": 63.2,
+        "factorScore": 63.2,
+        "band": "neutral",
+        "components": {
+          "trend": 24.2,
+          "momentum": -18.0,
+          "risk_value": 7.0
+        }
+      },
+      "alert": {
+        "trigger": "trend_stack_bullish",
+        "severity": "low",
+        "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+        "matchedRules": [
+          "trend-stack-bullish"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
+    },
+    {
+      "symbol": "9999.HK",
+      "code": "9999",
+      "name": "NetEase",
+      "sector": "Internet",
+      "currency": "HKD",
+      "as_of": "2026-06-26T06:47:21+00:00",
+      "exchange": "Hong Kong",
+      "source_mode": "mock",
+      "price": {
+        "value": 184.232,
+        "previous_close": 183.8999,
+        "formatted": "184.23"
+      },
+      "change": {
+        "absolute": 0.3321,
+        "percent": 0.1806,
+        "direction": "up"
+      },
+      "liquidity": {
+        "volume": 37319387,
+        "turnover_value": 6875425305.78,
+        "turnover_rate_pct": 0.2592
+      },
+      "volatility": {
+        "daily_30d_pct": 0.1418,
+        "annualized_30d_pct": 2.2516
+      },
+      "moving_averages": {
+        "ma5": 183.5409,
+        "ma10": 182.3969,
+        "ma20": 178.6868,
+        "ma50": 169.6562
+      },
+      "momentum": {
+        "rsi14": 100.0,
+        "macd": {
+          "line": 4.3958,
+          "signal": 4.3992,
+          "histogram": -0.0034
+        }
+      },
+      "bands": {
+        "bollinger": {
+          "middle": 178.6868,
+          "upper": 187.1605,
+          "lower": 170.2131,
+          "bandwidth_pct": 9.4844
+        }
+      },
+      "valuation": {
+        "market_cap": 904000000000.0,
+        "pe_ttm": 40.5797,
+        "pb_ratio": 2.0502,
+        "eps_ttm": 4.54,
+        "dividend_yield_pct": 6.24
+      },
+      "history": {
+        "range": "synthetic-80d",
+        "interval": "1d",
+        "close_series": [
+          150.7026,
+          150.8967,
+          151.1129,
+          151.3647,
+          151.665,
+          152.0252,
+          152.455,
+          152.8067,
+          153.2398,
+          153.7567,
+          154.3566,
+          155.0362,
+          155.7895,
+          156.6081,
+          157.4814,
+          158.3973,
+          159.1808,
+          159.9778,
+          160.7744,
+          161.5575,
+          162.3153,
+          163.0379,
+          163.718,
+          164.351,
+          164.9352,
+          165.3043,
+          165.6303,
+          165.921,
+          166.187,
+          166.4406,
+          166.696,
+          166.9679,
+          167.2715,
+          167.6215,
+          167.8604,
+          168.1705,
+          168.5613,
+          169.0398,
+          169.6101,
+          170.2732,
+          171.0272,
+          171.867,
+          172.7848,
+          173.5938,
+          174.4559,
+          175.3568,
+          176.2815,
+          177.2142,
+          178.1402,
+          179.0454,
+          179.9176,
+          180.7473,
+          181.3432,
+          181.8848,
+          182.3722,
+          182.8089,
+          183.202,
+          183.5615,
+          183.8999,
+          184.232
+        ]
+      },
+      "metadata": {
+        "risk_flags": [
+          "MOCK_DATA",
+          "NOT_FOR_TRADING",
+          "DEV_FALLBACK"
+        ],
+        "indicator_explanations": {
+          "price": {
+            "label": "最新价",
+            "description": "最新可得成交价或收盘价，延迟与否取决于上游源。",
+            "unit": "HKD"
+          },
+          "change_percent": {
+            "label": "涨跌幅",
+            "description": "相对前收盘的百分比变化，用于识别日内强弱。",
+            "unit": "%",
+            "formula": "((price - previous_close) / previous_close) * 100"
+          },
+          "turnover_value": {
+            "label": "成交额",
+            "description": "以最新价乘当日成交量估算的成交额。",
+            "unit": "HKD",
+            "formula": "price * volume"
+          },
+          "turnover_rate": {
+            "label": "换手率",
+            "description": "成交量相对流通股本或总股本的近似比例，缺少股本时为空。",
+            "unit": "%",
+            "formula": "(volume / shares_outstanding) * 100"
+          },
+          "volatility_30d": {
+            "label": "30日波动率",
+            "description": "最近30个交易日收益率标准差，提供日度与年化两个口径。",
+            "unit": "%"
+          },
+          "moving_averages": {
+            "label": "移动均线",
+            "description": "MA5/10/20/50，用于观察趋势支撑与偏离程度。",
+            "unit": "HKD"
+          },
+          "rsi_14": {
+            "label": "RSI(14)",
+            "description": "14期相对强弱指标，常用来判断超买超卖。",
+            "unit": "index"
+          },
+          "macd": {
+            "label": "MACD",
+            "description": "12/26 EMA 差值与 9 EMA 信号线，用于衡量动量拐点。",
+            "unit": "HKD"
+          },
+          "bollinger_bands": {
+            "label": "布林带",
+            "description": "20日均线及上下2倍标准差通道，反映波动区间。",
+            "unit": "HKD"
+          },
+          "valuation": {
+            "label": "估值/股息",
+            "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
+            "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
+          }
+        }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 183.8999,
+        "prev_change_pct": 0.1844
+      },
+      "factor": {
+        "score": 65.2,
+        "factorScore": 65.2,
+        "band": "bullish",
+        "components": {
+          "trend": 26.2,
+          "momentum": -18.0,
+          "risk_value": 7.0
+        }
+      },
+      "alert": {
+        "trigger": "macd_bearish_cross",
+        "severity": "high",
+        "reason": "MACD 线向下跌破信号线，动量转弱。",
+        "matchedRules": [
+          "macd-bearish-cross"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "macd_bearish_cross",
+          "severity": "high",
+          "reason": "MACD 线向下跌破信号线，动量转弱。",
+          "matchedRules": [
+            "macd-bearish-cross"
+          ]
+        },
+        {
+          "trigger": "overbought_stretch",
+          "severity": "medium",
+          "reason": "RSI(14) 升至 100.0，现价较 MA20 高出 3.1%，短线偏热。",
+          "matchedRules": [
+            "overbought-stretch"
+          ]
+        },
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
+    },
+    {
+      "symbol": "9888.HK",
+      "code": "9888",
+      "name": "Baidu",
+      "sector": "Internet",
+      "currency": "HKD",
+      "as_of": "2026-06-26T06:47:21+00:00",
+      "exchange": "Hong Kong",
+      "source_mode": "mock",
+      "price": {
+        "value": 207.018,
+        "previous_close": 206.9678,
+        "formatted": "207.02"
+      },
+      "change": {
+        "absolute": 0.0502,
+        "percent": 0.0243,
+        "direction": "up"
+      },
+      "liquidity": {
+        "volume": 42663609,
+        "turnover_value": 8832135007.96,
+        "turnover_rate_pct": 0.7757
+      },
+      "volatility": {
+        "daily_30d_pct": 0.2374,
+        "annualized_30d_pct": 3.7678
+      },
+      "moving_averages": {
+        "ma5": 206.6877,
+        "ma10": 205.3733,
+        "ma20": 201.1451,
+        "ma50": 195.0266
+      },
+      "momentum": {
+        "rsi14": 100.0,
+        "macd": {
+          "line": 3.7746,
+          "signal": 3.468,
+          "histogram": 0.3066
+        }
+      },
+      "bands": {
+        "bollinger": {
+          "middle": 201.1451,
+          "upper": 210.5636,
+          "lower": 191.7265,
+          "bandwidth_pct": 9.3649
+        }
+      },
+      "valuation": {
+        "market_cap": 2615000000000.0,
+        "pe_ttm": 27.0612,
+        "pb_ratio": 1.6095,
+        "eps_ttm": 7.65,
+        "dividend_yield_pct": 2.35
+      },
+      "history": {
+        "range": "synthetic-80d",
+        "interval": "1d",
+        "close_series": [
+          182.6562,
+          182.4081,
+          182.1574,
+          181.9296,
+          181.7497,
+          181.6412,
+          181.6248,
+          181.6094,
+          181.7176,
+          181.9587,
+          182.3371,
+          182.8525,
+          183.4996,
+          184.2686,
+          185.1452,
+          186.1111,
+          187.0332,
+          187.998,
+          188.9799,
+          189.9529,
+          190.8912,
+          191.7712,
+          192.5716,
+          193.2751,
+          193.869,
+          194.2292,
+          194.4698,
+          194.5948,
+          194.6137,
+          194.5414,
+          194.3969,
+          194.2031,
+          193.9854,
+          193.7706,
+          193.4696,
+          193.2251,
+          193.0616,
+          193.0005,
+          193.0597,
+          193.2529,
+          193.5887,
+          194.0712,
+          194.6989,
+          195.3484,
+          196.1242,
+          197.0101,
+          197.9857,
+          199.0274,
+          200.1094,
+          201.2043,
+          202.2842,
+          203.3223,
+          204.1718,
+          204.9317,
+          205.5848,
+          206.1186,
+          206.5264,
+          206.8077,
+          206.9678,
+          207.018
+        ]
+      },
+      "metadata": {
+        "risk_flags": [
+          "MOCK_DATA",
+          "NOT_FOR_TRADING",
+          "DEV_FALLBACK"
+        ],
+        "indicator_explanations": {
+          "price": {
+            "label": "最新价",
+            "description": "最新可得成交价或收盘价，延迟与否取决于上游源。",
+            "unit": "HKD"
+          },
+          "change_percent": {
+            "label": "涨跌幅",
+            "description": "相对前收盘的百分比变化，用于识别日内强弱。",
+            "unit": "%",
+            "formula": "((price - previous_close) / previous_close) * 100"
+          },
+          "turnover_value": {
+            "label": "成交额",
+            "description": "以最新价乘当日成交量估算的成交额。",
+            "unit": "HKD",
+            "formula": "price * volume"
+          },
+          "turnover_rate": {
+            "label": "换手率",
+            "description": "成交量相对流通股本或总股本的近似比例，缺少股本时为空。",
+            "unit": "%",
+            "formula": "(volume / shares_outstanding) * 100"
+          },
+          "volatility_30d": {
+            "label": "30日波动率",
+            "description": "最近30个交易日收益率标准差，提供日度与年化两个口径。",
+            "unit": "%"
+          },
+          "moving_averages": {
+            "label": "移动均线",
+            "description": "MA5/10/20/50，用于观察趋势支撑与偏离程度。",
+            "unit": "HKD"
+          },
+          "rsi_14": {
+            "label": "RSI(14)",
+            "description": "14期相对强弱指标，常用来判断超买超卖。",
+            "unit": "index"
+          },
+          "macd": {
+            "label": "MACD",
+            "description": "12/26 EMA 差值与 9 EMA 信号线，用于衡量动量拐点。",
+            "unit": "HKD"
+          },
+          "bollinger_bands": {
+            "label": "布林带",
+            "description": "20日均线及上下2倍标准差通道，反映波动区间。",
+            "unit": "HKD"
+          },
+          "valuation": {
+            "label": "估值/股息",
+            "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
+            "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
+          }
+        }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 206.9678,
+        "prev_change_pct": 0.0774
+      },
+      "factor": {
+        "score": 81.5,
+        "factorScore": 81.5,
+        "band": "strong_bullish",
+        "components": {
+          "trend": 24.5,
+          "momentum": -2.0,
+          "risk_value": 9.0
+        }
+      },
+      "alert": {
+        "trigger": "trend_stack_bullish",
+        "severity": "low",
+        "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+        "matchedRules": [
+          "trend-stack-bullish"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
+    },
+    {
+      "symbol": "0981.HK",
+      "code": "0981",
+      "name": "SMIC",
+      "sector": "Semiconductors",
+      "currency": "HKD",
+      "as_of": "2026-06-26T06:47:21+00:00",
+      "exchange": "Hong Kong",
+      "source_mode": "mock",
+      "price": {
+        "value": 419.085,
+        "previous_close": 418.2813,
+        "formatted": "419.08"
+      },
+      "change": {
+        "absolute": 0.8037,
+        "percent": 0.1921,
+        "direction": "up"
+      },
+      "liquidity": {
+        "volume": 11467195,
+        "turnover_value": 4805729416.57,
+        "turnover_rate_pct": 0.1489
+      },
+      "volatility": {
+        "daily_30d_pct": 0.1725,
+        "annualized_30d_pct": 2.7381
+      },
+      "moving_averages": {
+        "ma5": 417.1541,
+        "ma10": 413.7999,
+        "ma20": 406.9466,
+        "ma50": 397.2638
+      },
+      "momentum": {
+        "rsi14": 100.0,
+        "macd": {
+          "line": 6.2995,
+          "signal": 5.4347,
+          "histogram": 0.8648
+        }
+      },
+      "bands": {
+        "bollinger": {
+          "middle": 406.9466,
+          "upper": 422.2498,
+          "lower": 391.6435,
+          "bandwidth_pct": 7.521
+        }
+      },
+      "valuation": {
+        "market_cap": 2437000000000.0,
+        "pe_ttm": 224.1096,
+        "pb_ratio": 2.521,
+        "eps_ttm": 1.87,
+        "dividend_yield_pct": 6.57
+      },
+      "history": {
+        "range": "synthetic-80d",
+        "interval": "1d",
+        "close_series": [
+          376.6653,
+          376.4598,
+          376.224,
+          375.9914,
+          375.7962,
+          375.672,
+          375.6503,
+          375.5681,
+          375.6414,
+          375.8893,
+          376.3255,
+          376.9575,
+          377.7865,
+          378.8072,
+          380.0083,
+          381.3724,
+          382.6823,
+          384.1039,
+          385.6061,
+          387.1555,
+          388.7175,
+          390.2572,
+          391.7415,
+          393.1397,
+          394.4253,
+          395.3757,
+          396.1755,
+          396.8164,
+          397.2969,
+          397.6231,
+          397.8078,
+          397.8706,
+          397.8365,
+          397.7355,
+          397.3979,
+          397.0622,
+          396.7645,
+          396.5404,
+          396.4232,
+          396.4431,
+          396.626,
+          396.9926,
+          397.5578,
+          398.1272,
+          398.9044,
+          399.8842,
+          401.0545,
+          402.3973,
+          403.8887,
+          405.5002,
+          407.1993,
+          408.9507,
+          410.5094,
+          412.0455,
+          413.5239,
+          414.912,
+          416.1818,
+          417.3104,
+          418.2813,
+          419.085
+        ]
+      },
+      "metadata": {
+        "risk_flags": [
+          "MOCK_DATA",
+          "NOT_FOR_TRADING",
+          "DEV_FALLBACK"
+        ],
+        "indicator_explanations": {
+          "price": {
+            "label": "最新价",
+            "description": "最新可得成交价或收盘价，延迟与否取决于上游源。",
+            "unit": "HKD"
+          },
+          "change_percent": {
+            "label": "涨跌幅",
+            "description": "相对前收盘的百分比变化，用于识别日内强弱。",
+            "unit": "%",
+            "formula": "((price - previous_close) / previous_close) * 100"
+          },
+          "turnover_value": {
+            "label": "成交额",
+            "description": "以最新价乘当日成交量估算的成交额。",
+            "unit": "HKD",
+            "formula": "price * volume"
+          },
+          "turnover_rate": {
+            "label": "换手率",
+            "description": "成交量相对流通股本或总股本的近似比例，缺少股本时为空。",
+            "unit": "%",
+            "formula": "(volume / shares_outstanding) * 100"
+          },
+          "volatility_30d": {
+            "label": "30日波动率",
+            "description": "最近30个交易日收益率标准差，提供日度与年化两个口径。",
+            "unit": "%"
+          },
+          "moving_averages": {
+            "label": "移动均线",
+            "description": "MA5/10/20/50，用于观察趋势支撑与偏离程度。",
+            "unit": "HKD"
+          },
+          "rsi_14": {
+            "label": "RSI(14)",
+            "description": "14期相对强弱指标，常用来判断超买超卖。",
+            "unit": "index"
+          },
+          "macd": {
+            "label": "MACD",
+            "description": "12/26 EMA 差值与 9 EMA 信号线，用于衡量动量拐点。",
+            "unit": "HKD"
+          },
+          "bollinger_bands": {
+            "label": "布林带",
+            "description": "20日均线及上下2倍标准差通道，反映波动区间。",
+            "unit": "HKD"
+          },
+          "valuation": {
+            "label": "估值/股息",
+            "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
+            "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
+          }
+        }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 418.2813,
+        "prev_change_pct": 0.2327
+      },
+      "factor": {
+        "score": 73.5,
+        "factorScore": 73.5,
+        "band": "bullish",
+        "components": {
+          "trend": 24.5,
+          "momentum": -2.0,
+          "risk_value": 1.0
+        }
+      },
+      "alert": {
+        "trigger": "trend_stack_bullish",
+        "severity": "low",
+        "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+        "matchedRules": [
+          "trend-stack-bullish"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
+    },
+    {
+      "symbol": "0992.HK",
+      "code": "0992",
+      "name": "Lenovo Group",
+      "sector": "Consumer Electronics",
+      "currency": "HKD",
+      "as_of": "2026-06-26T06:47:21+00:00",
+      "exchange": "Hong Kong",
+      "source_mode": "mock",
+      "price": {
+        "value": 68.2746,
+        "previous_close": 68.054,
+        "formatted": "68.27"
+      },
+      "change": {
+        "absolute": 0.2206,
+        "percent": 0.3242,
+        "direction": "up"
+      },
+      "liquidity": {
+        "volume": 43140641,
+        "turnover_value": 2945410008.02,
+        "turnover_rate_pct": 0.4148
+      },
+      "volatility": {
+        "daily_30d_pct": 0.149,
+        "annualized_30d_pct": 2.365
+      },
+      "moving_averages": {
+        "ma5": 67.8084,
+        "ma10": 67.191,
+        "ma20": 66.2009,
+        "ma50": 64.5326
+      },
+      "momentum": {
+        "rsi14": 100.0,
+        "macd": {
+          "line": 1.0144,
+          "signal": 0.8715,
+          "histogram": 0.1428
+        }
+      },
+      "bands": {
+        "bollinger": {
+          "middle": 66.2009,
+          "upper": 68.4644,
+          "lower": 63.9375,
+          "bandwidth_pct": 6.8382
+        }
+      },
+      "valuation": {
+        "market_cap": 4064000000000.0,
+        "pe_ttm": 31.904,
+        "pb_ratio": 1.6357,
+        "eps_ttm": 2.14,
+        "dividend_yield_pct": 4.84
+      },
+      "history": {
+        "range": "synthetic-80d",
+        "interval": "1d",
+        "close_series": [
+          60.8587,
+          60.8675,
+          60.8697,
+          60.8696,
+          60.8712,
+          60.8789,
+          60.897,
+          60.8948,
+          60.9106,
+          60.9476,
+          61.0082,
+          61.0945,
+          61.2075,
+          61.3477,
+          61.5146,
+          61.707,
+          61.8879,
+          62.0897,
+          62.309,
+          62.5423,
+          62.7853,
+          63.0338,
+          63.2834,
+          63.5298,
+          63.7687,
+          63.9603,
+          64.1373,
+          64.2972,
+          64.4382,
+          64.5595,
+          64.6608,
+          64.7431,
+          64.808,
+          64.8579,
+          64.859,
+          64.8519,
+          64.841,
+          64.8306,
+          64.8253,
+          64.8297,
+          64.8482,
+          64.8847,
+          64.9429,
+          64.9886,
+          65.0611,
+          65.1617,
+          65.2912,
+          65.4493,
+          65.635,
+          65.8465,
+          66.0813,
+          66.3361,
+          66.5694,
+          66.8143,
+          67.0664,
+          67.321,
+          67.5733,
+          67.8191,
+          68.054,
+          68.2746
+        ]
+      },
+      "metadata": {
+        "risk_flags": [
+          "MOCK_DATA",
+          "NOT_FOR_TRADING",
+          "DEV_FALLBACK"
+        ],
+        "indicator_explanations": {
+          "price": {
+            "label": "最新价",
+            "description": "最新可得成交价或收盘价，延迟与否取决于上游源。",
+            "unit": "HKD"
+          },
+          "change_percent": {
+            "label": "涨跌幅",
+            "description": "相对前收盘的百分比变化，用于识别日内强弱。",
+            "unit": "%",
+            "formula": "((price - previous_close) / previous_close) * 100"
+          },
+          "turnover_value": {
+            "label": "成交额",
+            "description": "以最新价乘当日成交量估算的成交额。",
+            "unit": "HKD",
+            "formula": "price * volume"
+          },
+          "turnover_rate": {
+            "label": "换手率",
+            "description": "成交量相对流通股本或总股本的近似比例，缺少股本时为空。",
+            "unit": "%",
+            "formula": "(volume / shares_outstanding) * 100"
+          },
+          "volatility_30d": {
+            "label": "30日波动率",
+            "description": "最近30个交易日收益率标准差，提供日度与年化两个口径。",
+            "unit": "%"
+          },
+          "moving_averages": {
+            "label": "移动均线",
+            "description": "MA5/10/20/50，用于观察趋势支撑与偏离程度。",
+            "unit": "HKD"
+          },
+          "rsi_14": {
+            "label": "RSI(14)",
+            "description": "14期相对强弱指标，常用来判断超买超卖。",
+            "unit": "index"
+          },
+          "macd": {
+            "label": "MACD",
+            "description": "12/26 EMA 差值与 9 EMA 信号线，用于衡量动量拐点。",
+            "unit": "HKD"
+          },
+          "bollinger_bands": {
+            "label": "布林带",
+            "description": "20日均线及上下2倍标准差通道，反映波动区间。",
+            "unit": "HKD"
+          },
+          "valuation": {
+            "label": "估值/股息",
+            "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
+            "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
+          }
+        }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 68.054,
+        "prev_change_pct": 0.3464
+      },
+      "factor": {
+        "score": 96.8,
+        "factorScore": 96.8,
+        "band": "strong_bullish",
+        "components": {
+          "trend": 25.8,
+          "momentum": 8.0,
+          "risk_value": 13.0
+        }
+      },
+      "alert": {
+        "trigger": "momentum_exhaustion",
+        "severity": "high",
+        "reason": "趋势仍强但 RSI / 偏离率已过热，factor score 为 96.8，注意追高风险。",
+        "matchedRules": [
+          "trend-stack-bullish",
+          "overbought-stretch"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "momentum_exhaustion",
+          "severity": "high",
+          "reason": "趋势仍强但 RSI / 偏离率已过热，factor score 为 96.8，注意追高风险。",
+          "matchedRules": [
+            "trend-stack-bullish",
+            "overbought-stretch"
+          ]
+        },
+        {
+          "trigger": "overbought_stretch",
+          "severity": "medium",
+          "reason": "RSI(14) 升至 100.0，现价较 MA20 高出 3.1%，短线偏热。",
+          "matchedRules": [
+            "overbought-stretch"
+          ]
+        },
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
+    },
+    {
+      "symbol": "0020.HK",
+      "code": "0020",
+      "name": "SenseTime",
+      "sector": "Internet",
+      "currency": "HKD",
+      "as_of": "2026-06-26T06:47:21+00:00",
+      "exchange": "Hong Kong",
+      "source_mode": "mock",
+      "price": {
+        "value": 456.8731,
+        "previous_close": 453.5636,
+        "formatted": "456.87"
+      },
+      "change": {
+        "absolute": 3.3095,
+        "percent": 0.7297,
+        "direction": "up"
+      },
+      "liquidity": {
+        "volume": 68407692,
+        "turnover_value": 31253634307.89,
+        "turnover_rate_pct": 0.3124
+      },
+      "volatility": {
+        "daily_30d_pct": 0.28,
+        "annualized_30d_pct": 4.4446
+      },
+      "moving_averages": {
+        "ma5": 450.2633,
+        "ma10": 442.7912,
+        "ma20": 433.277,
+        "ma50": 415.2172
+      },
+      "momentum": {
+        "rsi14": 100.0,
+        "macd": {
+          "line": 10.5804,
+          "signal": 8.9053,
+          "histogram": 1.675
+        }
+      },
+      "bands": {
+        "bollinger": {
+          "middle": 433.277,
+          "upper": 455.9978,
+          "lower": 410.5563,
+          "bandwidth_pct": 10.4879
+        }
+      },
+      "valuation": {
+        "market_cap": 4179000000000.0,
+        "pe_ttm": 55.1114,
+        "pb_ratio": 1.5655,
+        "eps_ttm": 8.29,
+        "dividend_yield_pct": 3.99
+      },
+      "history": {
+        "range": "synthetic-80d",
+        "interval": "1d",
+        "close_series": [
+          375.7586,
+          375.8916,
+          375.9133,
+          375.865,
+          375.7919,
+          375.7414,
+          375.7613,
+          375.5155,
+          375.432,
+          375.5512,
+          375.9085,
+          376.5334,
+          377.4486,
+          378.6694,
+          380.2036,
+          382.0506,
+          383.8125,
+          385.8582,
+          388.1633,
+          390.6962,
+          393.4193,
+          396.29,
+          399.2619,
+          402.2858,
+          405.3118,
+          407.8771,
+          410.3427,
+          412.6662,
+          414.811,
+          416.7481,
+          418.4569,
+          419.9262,
+          421.155,
+          422.1523,
+          422.5063,
+          422.6748,
+          422.6945,
+          422.609,
+          422.4668,
+          422.3201,
+          422.2227,
+          422.2281,
+          422.3883,
+          422.3209,
+          422.4998,
+          422.9621,
+          423.7374,
+          424.8475,
+          426.3057,
+          428.1164,
+          430.2751,
+          432.7681,
+          435.1318,
+          437.7716,
+          440.6488,
+          443.7185,
+          446.9304,
+          450.2307,
+          453.5636,
+          456.8731
+        ]
+      },
+      "metadata": {
+        "risk_flags": [
+          "MOCK_DATA",
+          "NOT_FOR_TRADING",
+          "DEV_FALLBACK"
+        ],
+        "indicator_explanations": {
+          "price": {
+            "label": "最新价",
+            "description": "最新可得成交价或收盘价，延迟与否取决于上游源。",
+            "unit": "HKD"
+          },
+          "change_percent": {
+            "label": "涨跌幅",
+            "description": "相对前收盘的百分比变化，用于识别日内强弱。",
+            "unit": "%",
+            "formula": "((price - previous_close) / previous_close) * 100"
+          },
+          "turnover_value": {
+            "label": "成交额",
+            "description": "以最新价乘当日成交量估算的成交额。",
+            "unit": "HKD",
+            "formula": "price * volume"
+          },
+          "turnover_rate": {
+            "label": "换手率",
+            "description": "成交量相对流通股本或总股本的近似比例，缺少股本时为空。",
+            "unit": "%",
+            "formula": "(volume / shares_outstanding) * 100"
+          },
+          "volatility_30d": {
+            "label": "30日波动率",
+            "description": "最近30个交易日收益率标准差，提供日度与年化两个口径。",
+            "unit": "%"
+          },
+          "moving_averages": {
+            "label": "移动均线",
+            "description": "MA5/10/20/50，用于观察趋势支撑与偏离程度。",
+            "unit": "HKD"
+          },
+          "rsi_14": {
+            "label": "RSI(14)",
+            "description": "14期相对强弱指标，常用来判断超买超卖。",
+            "unit": "index"
+          },
+          "macd": {
+            "label": "MACD",
+            "description": "12/26 EMA 差值与 9 EMA 信号线，用于衡量动量拐点。",
+            "unit": "HKD"
+          },
+          "bollinger_bands": {
+            "label": "布林带",
+            "description": "20日均线及上下2倍标准差通道，反映波动区间。",
+            "unit": "HKD"
+          },
+          "valuation": {
+            "label": "估值/股息",
+            "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
+            "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
+          }
+        }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 453.5636,
+        "prev_change_pct": 0.7403
+      },
+      "factor": {
+        "score": 93.9,
+        "factorScore": 93.9,
+        "band": "strong_bullish",
+        "components": {
+          "trend": 32.9,
+          "momentum": 8.0,
+          "risk_value": 3.0
+        }
+      },
+      "alert": {
+        "trigger": "momentum_exhaustion",
+        "severity": "high",
+        "reason": "趋势仍强但 RSI / 偏离率已过热，factor score 为 93.9，注意追高风险。",
+        "matchedRules": [
+          "trend-stack-bullish",
+          "overbought-stretch"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "momentum_exhaustion",
+          "severity": "high",
+          "reason": "趋势仍强但 RSI / 偏离率已过热，factor score 为 93.9，注意追高风险。",
+          "matchedRules": [
+            "trend-stack-bullish",
+            "overbought-stretch"
+          ]
+        },
+        {
+          "trigger": "overbought_stretch",
+          "severity": "medium",
+          "reason": "RSI(14) 升至 100.0，现价较 MA20 高出 5.4%，短线偏热。",
+          "matchedRules": [
+            "overbought-stretch"
+          ]
+        },
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
+    },
+    {
+      "symbol": "2382.HK",
+      "code": "2382",
+      "name": "Sunny Optical",
+      "sector": "Consumer Electronics",
+      "currency": "HKD",
+      "as_of": "2026-06-26T06:47:21+00:00",
+      "exchange": "Hong Kong",
+      "source_mode": "mock",
+      "price": {
+        "value": 19.2128,
+        "previous_close": 19.1109,
+        "formatted": "19.21"
+      },
+      "change": {
+        "absolute": 0.1019,
+        "percent": 0.5332,
+        "direction": "up"
+      },
+      "liquidity": {
+        "volume": 26741537,
+        "turnover_value": 513779802.07,
+        "turnover_rate_pct": 0.3074
+      },
+      "volatility": {
+        "daily_30d_pct": 0.1599,
+        "annualized_30d_pct": 2.5385
+      },
+      "moving_averages": {
+        "ma5": 19.0177,
+        "ma10": 18.8207,
+        "ma20": 18.588,
+        "ma50": 17.95
+      },
+      "momentum": {
+        "rsi14": 100.0,
+        "macd": {
+          "line": 0.3163,
+          "signal": 0.2865,
+          "histogram": 0.0299
+        }
+      },
+      "bands": {
+        "bollinger": {
+          "middle": 18.588,
+          "upper": 19.1573,
+          "lower": 18.0187,
+          "bandwidth_pct": 6.1253
+        }
+      },
+      "valuation": {
+        "market_cap": 2247000000000.0,
+        "pe_ttm": 2.7565,
+        "pb_ratio": 2.2927,
+        "eps_ttm": 6.97,
+        "dividend_yield_pct": 0.67
+      },
+      "history": {
+        "range": "synthetic-80d",
+        "interval": "1d",
+        "close_series": [
+          16.5642,
+          16.5815,
+          16.5956,
+          16.6074,
+          16.6178,
+          16.6282,
+          16.6396,
+          16.6398,
+          16.6435,
+          16.6517,
+          16.6656,
+          16.6861,
+          16.7138,
+          16.7495,
+          16.7936,
+          16.8463,
+          16.894,
+          16.9501,
+          17.0141,
+          17.0856,
+          17.1638,
+          17.2477,
+          17.3364,
+          17.4287,
+          17.5234,
+          17.605,
+          17.6865,
+          17.7665,
+          17.8439,
+          17.9178,
+          17.9874,
+          18.0519,
+          18.1109,
+          18.1642,
+          18.1971,
+          18.2245,
+          18.2469,
+          18.265,
+          18.2796,
+          18.2919,
+          18.303,
+          18.3142,
+          18.3268,
+          18.3273,
+          18.3319,
+          18.3418,
+          18.358,
+          18.3817,
+          18.4135,
+          18.4543,
+          18.5042,
+          18.5637,
+          18.6177,
+          18.6808,
+          18.7526,
+          18.8325,
+          18.9195,
+          19.0127,
+          19.1109,
+          19.2128
+        ]
+      },
+      "metadata": {
+        "risk_flags": [
+          "MOCK_DATA",
+          "NOT_FOR_TRADING",
+          "DEV_FALLBACK"
+        ],
+        "indicator_explanations": {
+          "price": {
+            "label": "最新价",
+            "description": "最新可得成交价或收盘价，延迟与否取决于上游源。",
+            "unit": "HKD"
+          },
+          "change_percent": {
+            "label": "涨跌幅",
+            "description": "相对前收盘的百分比变化，用于识别日内强弱。",
+            "unit": "%",
+            "formula": "((price - previous_close) / previous_close) * 100"
+          },
+          "turnover_value": {
+            "label": "成交额",
+            "description": "以最新价乘当日成交量估算的成交额。",
+            "unit": "HKD",
+            "formula": "price * volume"
+          },
+          "turnover_rate": {
+            "label": "换手率",
+            "description": "成交量相对流通股本或总股本的近似比例，缺少股本时为空。",
+            "unit": "%",
+            "formula": "(volume / shares_outstanding) * 100"
+          },
+          "volatility_30d": {
+            "label": "30日波动率",
+            "description": "最近30个交易日收益率标准差，提供日度与年化两个口径。",
+            "unit": "%"
+          },
+          "moving_averages": {
+            "label": "移动均线",
+            "description": "MA5/10/20/50，用于观察趋势支撑与偏离程度。",
+            "unit": "HKD"
+          },
+          "rsi_14": {
+            "label": "RSI(14)",
+            "description": "14期相对强弱指标，常用来判断超买超卖。",
+            "unit": "index"
+          },
+          "macd": {
+            "label": "MACD",
+            "description": "12/26 EMA 差值与 9 EMA 信号线，用于衡量动量拐点。",
+            "unit": "HKD"
+          },
+          "bollinger_bands": {
+            "label": "布林带",
+            "description": "20日均线及上下2倍标准差通道，反映波动区间。",
+            "unit": "HKD"
+          },
+          "valuation": {
+            "label": "估值/股息",
+            "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
+            "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
+          },
+          "open_price": {
+            "label": "开盘价",
+            "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+            "unit": "HKD"
+          },
+          "high_low": {
+            "label": "最高 / 最低",
+            "description": "当日盘中最高价与最低价。",
+            "unit": "HKD"
+          },
+          "amplitude": {
+            "label": "振幅",
+            "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+            "unit": "%",
+            "formula": "(high - low) / previous_close * 100"
+          },
+          "volume_ratio": {
+            "label": "量比",
+            "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+            "unit": "ratio"
+          },
+          "bid_ask": {
+            "label": "买卖盘",
+            "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+            "unit": "HKD"
+          },
+          "intraday_change": {
+            "label": "今 / 昨涨跌",
+            "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+            "unit": "%"
+          }
+        }
+      },
+      "intraday": {
+        "open": null,
+        "high": null,
+        "low": null,
+        "amplitude_pct": null,
+        "volume_ratio": null,
+        "bid": null,
+        "ask": null,
+        "spread": null,
+        "prev_close": 19.1109,
+        "prev_change_pct": 0.5165
+      },
+      "factor": {
+        "score": 100,
+        "factorScore": 100,
+        "band": "strong_bullish",
+        "components": {
+          "trend": 28.2,
+          "momentum": 8.0,
+          "risk_value": 15.0
+        }
+      },
+      "alert": {
+        "trigger": "momentum_exhaustion",
+        "severity": "high",
+        "reason": "趋势仍强但 RSI / 偏离率已过热，factor score 为 100.0，注意追高风险。",
+        "matchedRules": [
+          "trend-stack-bullish",
+          "overbought-stretch"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "momentum_exhaustion",
+          "severity": "high",
+          "reason": "趋势仍强但 RSI / 偏离率已过热，factor score 为 100.0，注意追高风险。",
+          "matchedRules": [
+            "trend-stack-bullish",
+            "overbought-stretch"
+          ]
+        },
+        {
+          "trigger": "overbought_stretch",
+          "severity": "medium",
+          "reason": "RSI(14) 升至 100.0，现价较 MA20 高出 3.4%，短线偏热。",
+          "matchedRules": [
+            "overbought-stretch"
+          ]
+        },
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
     }
   ],
   "summary": {
-    "count": 8,
+    "count": 16,
     "symbols": [
       "0005.HK",
       "0700.HK",
@@ -1793,13 +4303,21 @@
       "1810.HK",
       "2318.HK",
       "3690.HK",
-      "9988.HK"
+      "9988.HK",
+      "1024.HK",
+      "9618.HK",
+      "9999.HK",
+      "9888.HK",
+      "0981.HK",
+      "0992.HK",
+      "0020.HK",
+      "2382.HK"
     ],
-    "advancing": 5,
+    "advancing": 13,
     "declining": 3,
-    "fallback_count": 8,
-    "alert_count": 8,
-    "high_severity_alerts": 1,
+    "fallback_count": 16,
+    "alert_count": 16,
+    "high_severity_alerts": 5,
     "average_factor_score": 82.5
   },
   "metadata": {
@@ -1861,6 +4379,37 @@
         "label": "Factor Score",
         "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
         "unit": "score"
+      },
+      "open_price": {
+        "label": "开盘价",
+        "description": "当日开盘价；与昨收比较可看出高开 / 低开（跳空）。",
+        "unit": "HKD"
+      },
+      "high_low": {
+        "label": "最高 / 最低",
+        "description": "当日盘中最高价与最低价。",
+        "unit": "HKD"
+      },
+      "amplitude": {
+        "label": "振幅",
+        "description": "(当日最高 - 最低) / 昨收，衡量日内波动幅度。",
+        "unit": "%",
+        "formula": "(high - low) / previous_close * 100"
+      },
+      "volume_ratio": {
+        "label": "量比",
+        "description": "当前成交量与近期平均成交量之比；>1 表示放量，<1 表示缩量。",
+        "unit": "ratio"
+      },
+      "bid_ask": {
+        "label": "买卖盘",
+        "description": "最优买一价 / 卖一价及其价差；免费 HK 行情仅提供一档，无完整 5 档深度与买卖量。",
+        "unit": "HKD"
+      },
+      "intraday_change": {
+        "label": "今 / 昨涨跌",
+        "description": "今日相对昨收、昨日相对前日收盘的涨跌幅；昨日涨跌需历史数据，quote-only 源下为空。",
+        "unit": "%"
       }
     },
     "alert_rule_model": {
