@@ -232,6 +232,7 @@ it reads `data/products.json` directly.
 
 看板的运维 / 部署 / 数据语义 / 告警 / 风险说明都在 [`docs/`](docs/README.md) 下，**与业务 UI 解耦**：
 
+- [`docs/hk-watchlist-production.md`](docs/hk-watchlist-production.md) — 港股观察池生产说明：数据源策略、宏观/微观分析框架、指标字典、alert 用法、环境变量、刷新频率、监控与降级。
 - [`docs/metrics.md`](docs/metrics.md) — 指标字典：`data/products.json` 每个字段的语义、单位、合法范围、派生指标定义。
 - [`docs/data-sources.md`](docs/data-sources.md) — 数据源策略、宏观/微观分层、未来 roadmap、何时不该接入新源。
 - [`docs/alerts.md`](docs/alerts.md) — 抓取健康度 / 数据语义 / 站点可用性三类告警的轻量级配置方案（webhook、Healthchecks.io、GitHub Actions）。
@@ -241,3 +242,12 @@ it reads `data/products.json` directly.
 - [`docs/trading-risk.md`](docs/trading-risk.md) — 为什么本看板**不能**驱动真实下单 / 真实交易决策。
 
 > ⚠️ 上述文档**不是**投资建议、产品推荐或合规背书；任何关于 HSBC 产品的真实条款请以 HSBC 官网为准。
+
+对于 `data/hk_stocks.json` / `/api/hk-stocks` 的生产接入，请至少先读：
+`hk-watchlist-production.md` → `alerts.md` → `deployment.md` →
+`observability.md` → `trading-risk.md`。其中明确约束了：
+
+- 公共 Yahoo Finance 端点只作为**延迟、研究用途**的数据源；
+- `HK_STOCKS_PROVIDER=mock` 或 live 拉取失败时会写入带 `MOCK_DATA` /
+  `DEV_FALLBACK` 风险标记的快照；
+- 所有 alert 只能陈述客观事实，**不得**包装成买卖建议或自动联动交易。

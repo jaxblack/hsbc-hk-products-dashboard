@@ -5,6 +5,7 @@
 
 | 文档 | 用途 |
 |------|------|
+| [hk-watchlist-production.md](hk-watchlist-production.md) | 港股观察池生产说明：数据源策略、宏观 / 微观分析框架、指标字典、alert 用法、环境变量、刷新频率、监控与降级。 |
 | [metrics.md](metrics.md) | 指标字典：`data/products.json` 每个字段的语义、单位、合法范围、派生指标定义。 |
 | [data-sources.md](data-sources.md) | 数据源策略：当前覆盖范围、宏观 / 微观分层、何时不该接入新源。 |
 | [alerts.md](alerts.md) | 告警配置：抓取健康度 / 数据语义 / 站点可用性三类告警的轻量级落地方案。 |
@@ -17,6 +18,8 @@
 
 - 第一次部署：`deployment.md` → `data-latency.md` → `alerts.md` →
   `observability.md`。
+- 港股观察池投产：`hk-watchlist-production.md` → `alerts.md` →
+  `deployment.md` → `observability.md` → `trading-risk.md`。
 - 接入新数据源：`data-sources.md` → `metrics.md` → `alerts.md`。
 - 想做下游集成 / 衍生品：先读 `trading-risk.md`，再考虑要不要做。
 - 审计 / 合规视角：`data-latency.md` + `trading-risk.md` 一起读。
