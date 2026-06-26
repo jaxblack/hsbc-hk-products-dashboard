@@ -99,6 +99,7 @@
     autoTimer: null,
     activeUrl: DATA_URLS[0],
     insightCache: {},
+    llmCache: {},
   };
 
   const escapeHtml = (s) =>
@@ -853,6 +854,70 @@
     }
   }
 
+  function renderLLMBlock(stock) {
+    return `
+      <section class="llm-card" id="eq-llm">
+        <div class="ai-head">
+          <h4>LLM 深度分析</h4>
+          <button type="button" class="btn-ghost llm-btn" id="eq-llm-btn" data-ticker="${escapeHtml(stock.ticker)}">生成分析</button>
+        </div>
+        <div class="llm-body" id="eq-llm-body">
+          <p class="muted">点击「生成分析」调用大模型，结合指标与新闻输出研判（需在后端配置 LLM key）。</p>
+        </div>
+      </section>`;
+  }
+
+  function renderLLM(ticker, data) {
+    const bodyEl = document.getElementById("eq-llm-body");
+    if (!bodyEl) return;
+    if (!data.configured) {
+      bodyEl.innerHTML =
+        `<p class="muted">${escapeHtml(data.error || "LLM 未配置。")}</p>` +
+        '<p class="llm-hint">在后端设置 <code>LLM_PROVIDER</code>（openai/azure/ollama）、<code>LLM_MODEL</code>、<code>LLM_API_KEY</code>、<code>LLM_BASE_URL</code>（可写入仓库根目录 <code>.env</code>，见 <code>.env.example</code>）后重启即可启用。</p>';
+      return;
+    }
+    if (data.error) {
+      bodyEl.innerHTML = `<p class="muted">${escapeHtml(data.error)}</p>`;
+      return;
+    }
+    const text = escapeHtml(data.analysis || "（无返回内容）").replace(/\n/g, "<br/>");
+    const meta = [data.provider, data.model].filter(Boolean).map(escapeHtml).join(" · ");
+    bodyEl.innerHTML = `<div class="llm-text">${text}</div>${meta ? `<p class="llm-meta">模型：${meta}</p>` : ""}`;
+  }
+
+  async function loadLLM(ticker) {
+    const bodyEl = document.getElementById("eq-llm-body");
+    const btn = document.getElementById("eq-llm-btn");
+    if (!bodyEl) return;
+    if (API.available !== true) {
+      bodyEl.innerHTML = '<p class="muted">需运行 FastAPI 后端才能调用 LLM 分析。</p>';
+      return;
+    }
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "生成中…";
+    }
+    bodyEl.innerHTML = '<p class="muted">大模型分析生成中，请稍候…</p>';
+    try {
+      const resp = await fetch(
+        `/api/hk-stocks/llm?symbol=${encodeURIComponent(ticker)}&_=${Date.now()}`,
+        { cache: "no-store" },
+      );
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      state.llmCache[ticker] = data;
+      if (state.selected === ticker) renderLLM(ticker, data);
+    } catch (err) {
+      bodyEl.innerHTML = `<p class="muted">LLM 调用失败：${escapeHtml(err.message || String(err))}</p>`;
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        const cached = state.llmCache[ticker];
+        btn.textContent = cached && cached.configured && cached.analysis ? "重新生成" : "生成分析";
+      }
+    }
+  }
+
   function renderDetail(ticker) {
     const stock = state.stocks.find((item) => item.ticker === ticker);
     if (!stock) return;
@@ -938,6 +1003,7 @@
       </div>
       ${renderProfileBlock(stock)}
       ${renderAIBlock(stock)}
+      ${renderLLMBlock(stock)}
       ${metricSection("Alert / Factor", alertMetrics)}
       <p class="detail-note">${escapeHtml(stock.alert.reason || "当前未触发额外规则。")}</p>
       ${metricSection("核心指标", coreMetrics)}
@@ -951,6 +1017,7 @@
     `;
 
     if (state.insightCache[ticker]) renderInsight(ticker, state.insightCache[ticker]);
+    if (state.llmCache[ticker]) renderLLM(ticker, state.llmCache[ticker]);
 
     els.body.querySelectorAll("tr[data-ticker]").forEach((tr) => {
       tr.classList.toggle("selected", tr.dataset.ticker === ticker);
@@ -1187,6 +1254,12 @@
       els.detailRefresh.addEventListener("click", () =>
         refreshSingle(els.detailRefresh.dataset.ticker),
       );
+    }
+    if (els.detailBody) {
+      els.detailBody.addEventListener("click", (e) => {
+        const llmBtn = e.target.closest("#eq-llm-btn");
+        if (llmBtn) loadLLM(llmBtn.dataset.ticker);
+      });
     }
     if (els.autoRefresh) {
       els.autoRefresh.addEventListener("change", (e) => {

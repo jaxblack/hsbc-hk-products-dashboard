@@ -136,6 +136,7 @@ disabled because they require the FastAPI backend.
 - `POST /api/hk-stocks/refresh` — force a fresh multi-source pull
 - `GET /api/hk-stocks/quote?symbol=<code>` — on-demand real-time single quote
 - `GET /api/hk-stocks/insight?symbol=<code>` — company profile (curated CN) + recent news (Google News RSS)
+- `GET /api/hk-stocks/llm?symbol=<code>` — optional LLM analysis (returns `configured:false` until set up, see below)
 - `GET /api/watchlist` · `POST /api/watchlist` · `DELETE /api/watchlist/{symbol}`
   — read / add / remove custom stocks (persisted to `data/watchlist.json`)
 - `GET /api/products` — legacy time-deposit dataset (`data/products.json`)
@@ -161,6 +162,30 @@ the mock, or `HK_STOCKS_PROVIDER=tencent` for quote-only live.
 > means the figure was unavailable upstream. Free live sources (Yahoo chart /
 > Tencent) do not expose dividend yield, so live mode shows `—`; the curated
 > mock data carries the worked dividend examples.
+
+### Detail sidebar analysis (rule engine + optional LLM)
+
+Clicking a row opens a right-side detail drawer with two analysis blocks:
+
+- **AI 趋势分析 / 买卖参考** — a transparent, deterministic **rule engine**
+  (`computeAISignal` in `assets/equities.js`, runs client-side) that derives a
+  trend stance + buy-zone / target / stop from the technical indicators. Not an
+  LLM; clearly disclaimed as non-advice.
+- **LLM 深度分析** — *optional*, off by default. Click “生成分析” to call
+  `GET /api/hk-stocks/llm`, which feeds the indicators + news + profile to a
+  chat model. **No key is committed**; configure via env vars or a repo-root
+  `.env` (see [`.env.example`](.env.example)) and restart the backend:
+
+  ```bash
+  LLM_PROVIDER=openai        # openai | azure | ollama  (empty = disabled)
+  LLM_MODEL=gpt-4o-mini      # model name, or Azure deployment name
+  LLM_API_KEY=sk-...         # not needed for ollama
+  LLM_BASE_URL=              # azure: https://<res>.openai.azure.com ; ollama: http://localhost:11434/v1
+  ```
+
+  Until configured, the endpoint returns `configured:false` and the UI shows a
+  “not enabled” hint instead of erroring. Calls go through `urllib` against the
+  OpenAI-style `/chat/completions` API — no extra dependency.
 
 ---
 

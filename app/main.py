@@ -17,6 +17,7 @@ from app.hk_stocks import (
     refresh_hk_stock_snapshot,
     remove_custom_watchlist,
 )
+from app.llm import generate_llm_analysis
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data" / "products.json"
@@ -80,6 +81,16 @@ async def hk_stock_insight(symbol: str) -> dict:
     """Company profile + recent news for one symbol (lazy detail-panel payload)."""
     try:
         return fetch_stock_insight(symbol)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/hk-stocks/llm")
+async def hk_stock_llm(symbol: str) -> dict:
+    """Optional LLM-backed analysis. Returns ``configured: False`` (HTTP 200)
+    when no LLM key/provider is set, so the UI degrades gracefully."""
+    try:
+        return generate_llm_analysis(symbol)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 

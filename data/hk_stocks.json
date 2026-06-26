@@ -1,8 +1,8 @@
 {
   "version": 1,
   "market": "HK",
-  "generated_at": "2026-06-26T07:08:15+00:00",
-  "as_of": "2026-06-26T07:08:15+00:00",
+  "generated_at": "2026-06-26T09:28:10+00:00",
+  "as_of": "2026-06-26T09:28:10+00:00",
   "provider": {
     "name": "embedded-mock",
     "mode": "mock-configured",
@@ -18,7 +18,7 @@
       "name": "HSBC Holdings",
       "sector": "Banking",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -286,7 +286,7 @@
       "name": "Tencent Holdings",
       "sector": "Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -554,7 +554,7 @@
       "name": "China Mobile",
       "sector": "Telecom",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -822,7 +822,7 @@
       "name": "AIA Group",
       "sector": "Insurance",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1090,7 +1090,7 @@
       "name": "Xiaomi",
       "sector": "Consumer Electronics",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1376,7 +1376,7 @@
       "name": "Ping An Insurance",
       "sector": "Insurance",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1644,7 +1644,7 @@
       "name": "Meituan",
       "sector": "Consumer Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1912,7 +1912,7 @@
       "name": "Alibaba Group",
       "sector": "E-Commerce",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -2180,7 +2180,7 @@
       "name": "Kuaishou",
       "sector": "Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -2448,7 +2448,7 @@
       "name": "JD.com",
       "sector": "E-Commerce",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -2716,7 +2716,7 @@
       "name": "NetEase",
       "sector": "Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -3000,7 +3000,7 @@
       "name": "Baidu",
       "sector": "Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -3268,7 +3268,7 @@
       "name": "SMIC",
       "sector": "Semiconductors",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -3536,7 +3536,7 @@
       "name": "Lenovo Group",
       "sector": "Consumer Electronics",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -3822,7 +3822,7 @@
       "name": "SenseTime",
       "sector": "Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -4108,7 +4108,7 @@
       "name": "Sunny Optical",
       "sector": "Consumer Electronics",
       "currency": "HKD",
-      "as_of": "2026-06-26T07:08:15+00:00",
+      "as_of": "2026-06-26T09:28:10+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {

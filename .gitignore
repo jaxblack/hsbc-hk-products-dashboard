@@ -14,3 +14,6 @@ _debug/
 
 # server-side custom watchlist is runtime user state, not source
 data/watchlist.json
+
+# local secrets / LLM config (see .env.example)
+.env
