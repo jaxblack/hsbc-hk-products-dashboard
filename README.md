@@ -49,6 +49,7 @@ See [GitHub Pages setup](#github-pages-setup) below for the one-time toggle.
 │   ├── templates/index.html    # (legacy) Jinja template used by FastAPI
 │   └── static/style.css        # (legacy) FastAPI styling
 ├── requirements.txt
+├── app/hk_stocks.py            # HK watchlist provider + indicator calculations
 └── .github/workflows/pages.yml # auto-deploys static site to GitHub Pages
 ```
 
@@ -113,7 +114,30 @@ uvicorn app.main:app --reload
 # then open: http://127.0.0.1:8000
 ```
 
-Endpoints: `GET /` (Jinja page), `GET /health`, `GET /api/products`.
+Endpoints: `GET /` (Jinja page), `GET /health`, `GET /api/products`,
+`GET /api/hk-stocks` and `POST /api/hk-stocks/refresh`.
+
+### Hong Kong stock watchlist payload
+
+The FastAPI app now exposes a **core HK watchlist** with basic + advanced
+indicators via:
+
+```bash
+GET /api/hk-stocks
+POST /api/hk-stocks/refresh
+```
+
+The payload includes:
+
+- latest price, absolute / percent change, volume, turnover value, turnover rate
+- 30-day volatility, MA5/10/20/50, RSI(14), MACD, Bollinger Bands
+- market cap, TTM PE, PB, TTM EPS, dividend yield when upstream fields exist
+- `metadata.indicator_definitions` explanations and per-stock `risk_flags`
+
+Live data is attempted via public Yahoo Finance quote/chart endpoints. If the
+upstream is unavailable, or `HK_STOCKS_PROVIDER=mock`, the API writes and serves
+an embedded deterministic development snapshot with explicit `MOCK_DATA` /
+`DEV_FALLBACK` risk flags.
 
 ---
 
@@ -196,6 +220,8 @@ fabricate numbers for them.
 - `GET /` — Jinja-rendered dashboard (legacy)
 - `GET /health` — `{"status": "ok"}`
 - `GET /api/products` — returns the contents of `data/products.json`
+- `GET /api/hk-stocks` — returns HK watchlist quotes, indicators, metadata
+- `POST /api/hk-stocks/refresh` — refreshes and persists `data/hk_stocks.json`
 
 The static dashboard at the repo root does not depend on these endpoints;
 it reads `data/products.json` directly.

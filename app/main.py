@@ -8,6 +8,8 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from app.hk_stocks import load_hk_stock_snapshot, refresh_hk_stock_snapshot
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data" / "products.json"
 
@@ -39,3 +41,13 @@ async def health() -> dict[str, str]:
 @app.get("/api/products")
 async def products() -> dict:
     return load_products()
+
+
+@app.get("/api/hk-stocks")
+async def hk_stocks(refresh: bool = False) -> dict:
+    return load_hk_stock_snapshot(refresh=refresh)
+
+
+@app.post("/api/hk-stocks/refresh")
+async def refresh_hk_stocks() -> dict:
+    return refresh_hk_stock_snapshot()
