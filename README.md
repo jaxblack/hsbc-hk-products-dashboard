@@ -135,6 +135,7 @@ disabled because they require the FastAPI backend.
 - `GET /api/hk-stocks?refresh=<bool>` — watchlist snapshot (default + custom)
 - `POST /api/hk-stocks/refresh` — force a fresh multi-source pull
 - `GET /api/hk-stocks/quote?symbol=<code>` — on-demand real-time single quote
+- `GET /api/hk-stocks/insight?symbol=<code>` — company profile (curated CN) + recent news (Google News RSS)
 - `GET /api/watchlist` · `POST /api/watchlist` · `DELETE /api/watchlist/{symbol}`
   — read / add / remove custom stocks (persisted to `data/watchlist.json`)
 - `GET /api/products` — legacy time-deposit dataset (`data/products.json`)

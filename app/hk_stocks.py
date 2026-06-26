@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import math
 import os
+import re
 import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from statistics import mean, pstdev
 from typing import Any, Protocol
@@ -145,6 +148,95 @@ HK_WATCHLIST = [
         "currency": "HKD",
     },
 ]
+
+GOOGLE_NEWS_RSS = "https://news.google.com/rss/search?q={query}&hl=zh-CN&gl=CN&ceid=CN:zh"
+
+# Curated Chinese company profiles for the core watchlist. Yahoo's assetProfile
+# endpoint now requires a crumb (401), and Tencent/Sina expose no business
+# summary, so these are maintained here. Custom/unknown symbols fall back to
+# sector only.
+COMPANY_PROFILES: dict[str, dict[str, Any]] = {
+    "0005.HK": {
+        "name_cn": "汇丰控股",
+        "summary": "全球性银行与金融服务集团，业务覆盖财富管理与个人银行、工商金融及环球银行与资本市场，在香港与伦敦上市，是高股息蓝筹代表。",
+        "industry": "综合性银行",
+    },
+    "0700.HK": {
+        "name_cn": "腾讯控股",
+        "summary": "中国互联网与科技龙头，核心业务包括微信/QQ 社交、网络游戏、金融科技与企业服务、网络广告及云业务。",
+        "industry": "互联网与游戏",
+    },
+    "0941.HK": {
+        "name_cn": "中国移动",
+        "summary": "全球用户规模领先的电信运营商，提供移动与宽带通信、5G、算力网络等服务，现金流稳健、股息率较高。",
+        "industry": "电信运营",
+    },
+    "1299.HK": {
+        "name_cn": "友邦保险",
+        "summary": "泛亚领先的人寿与健康保险集团，业务覆盖中国内地、香港及东南亚多个市场，以代理人渠道与价值增长见长。",
+        "industry": "人寿保险",
+    },
+    "1810.HK": {
+        "name_cn": "小米集团-W",
+        "summary": "智能手机、IoT 与生活消费产品及互联网服务公司，近年布局智能电动汽车，主打高性价比与生态链。",
+        "industry": "消费电子与智能硬件",
+    },
+    "2318.HK": {
+        "name_cn": "中国平安",
+        "summary": "综合金融与医疗健康集团，涵盖寿险、财险、银行、资产管理与科技业务，推进“综合金融+医疗养老”战略。",
+        "industry": "综合金融",
+    },
+    "3690.HK": {
+        "name_cn": "美团-W",
+        "summary": "中国领先的本地生活服务平台，覆盖外卖、到店、酒旅与即时零售（美团闪购、买菜等），并布局无人配送。",
+        "industry": "本地生活服务",
+    },
+    "9988.HK": {
+        "name_cn": "阿里巴巴-W",
+        "summary": "中国电商与云计算龙头，业务含淘宝天猫、国际数字商业、阿里云、菜鸟物流与数字媒体娱乐。",
+        "industry": "电商与云计算",
+    },
+    "1024.HK": {
+        "name_cn": "快手-W",
+        "summary": "中国短视频与直播平台，业务涵盖内容社区、直播电商、线上营销服务，并发力可灵 AI 视频生成。",
+        "industry": "短视频与直播",
+    },
+    "9618.HK": {
+        "name_cn": "京东集团-SW",
+        "summary": "以自营零售与一体化供应链物流为核心的电商企业，涉足零售、京东物流与科技服务。",
+        "industry": "电商与供应链",
+    },
+    "9999.HK": {
+        "name_cn": "网易-S",
+        "summary": "以网络游戏为核心，兼有有道教育、网易云音乐与互联网增值服务，自研精品游戏出海。",
+        "industry": "网络游戏",
+    },
+    "9888.HK": {
+        "name_cn": "百度集团-SW",
+        "summary": "中国搜索与人工智能公司，布局文心大模型、百度智能云与 Apollo 自动驾驶（萝卜快跑）。",
+        "industry": "搜索与人工智能",
+    },
+    "0981.HK": {
+        "name_cn": "中芯国际",
+        "summary": "中国内地规模最大、技术最先进的晶圆代工厂之一，提供集成电路制造及配套设计服务。",
+        "industry": "半导体代工",
+    },
+    "0992.HK": {
+        "name_cn": "联想集团",
+        "summary": "全球个人电脑与设备龙头，业务含 PC、智能设备、基础设施方案（服务器）与解决方案服务。",
+        "industry": "PC 与硬件设备",
+    },
+    "0020.HK": {
+        "name_cn": "商汤-W",
+        "summary": "人工智能软件公司，提供计算机视觉、日日新大模型与生成式 AI、智能产业及智能汽车解决方案。",
+        "industry": "人工智能软件",
+    },
+    "2382.HK": {
+        "name_cn": "舜宇光学科技",
+        "summary": "光学零件与镜头模组供应商，产品用于智能手机、车载摄像、AR/VR 与安防等领域。",
+        "industry": "光学元件",
+    },
+}
 
 INDICATOR_METADATA = {
     "price": {
@@ -1344,6 +1436,7 @@ def _build_stock_entry(
             "indicator_explanations": INDICATOR_METADATA,
         },
     }
+    entry["profile"] = _profile_for(stock)
     factor, primary_alert, alerts = _build_alert_factor(entry, closes)
     entry["factor"] = factor
     entry["alert"] = primary_alert
@@ -1443,6 +1536,18 @@ def _attach_intraday(
     return entry
 
 
+def _profile_for(stock: dict[str, Any]) -> dict[str, Any]:
+    """Curated company profile for a watchlist stock (Chinese), with a sector-only
+    fallback for custom / unknown symbols."""
+    prof = COMPANY_PROFILES.get(stock["symbol"], {})
+    return {
+        "name_cn": prof.get("name_cn") or stock.get("name"),
+        "summary": prof.get("summary"),
+        "sector": stock.get("sector"),
+        "industry": prof.get("industry"),
+    }
+
+
 def _pick_price(quote: dict[str, Any], closes: list[float]) -> float | None:
     for key in ("regularMarketPrice", "postMarketPrice", "preMarketPrice"):
         value = _as_float(quote.get(key))
@@ -1536,6 +1641,7 @@ def _build_mock_stock_entry(stock: dict[str, Any], index: int) -> dict[str, Any]
         },
     }
     _attach_intraday(entry, None, None, {"closes": closes})
+    entry["profile"] = _profile_for(stock)
     factor, primary_alert, alerts = _build_alert_factor(entry, closes)
     entry["factor"] = factor
     entry["alert"] = primary_alert
@@ -1872,6 +1978,84 @@ def fetch_single_quote(
         fallback_used=True,
     )
 
+
+def _rfc822_to_iso(value: str | None) -> str | None:
+    if not value:
+        return None
+    try:
+        return (
+            parsedate_to_datetime(value)
+            .astimezone(timezone.utc)
+            .isoformat(timespec="seconds")
+        )
+    except (TypeError, ValueError, IndexError):
+        return None
+
+
+def _xml_first(block: str, tag: str) -> str | None:
+    match = re.search(rf"<{tag}[^>]*>(.*?)</{tag}>", block, re.S)
+    return html.unescape(match.group(1).strip()) if match else None
+
+
+def _fetch_google_news(name: str, *, limit: int = 6) -> list[dict[str, Any]]:
+    """Recent Chinese-language company news via Google News RSS (no API key)."""
+    query = urllib.parse.quote(f"{name} 股票")
+    url = GOOGLE_NEWS_RSS.format(query=query)
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(request, timeout=HTTP_TIMEOUT_SECONDS) as response:  # noqa: S310
+        if response.status != 200:
+            raise RuntimeError(f"unexpected HTTP {response.status} for Google News")
+        xml = response.read().decode("utf-8", errors="replace")
+    items: list[dict[str, Any]] = []
+    for block in re.findall(r"<item>(.*?)</item>", xml, re.S)[:limit]:
+        title = _xml_first(block, "title")
+        if not title:
+            continue
+        source = _xml_first(block, "source")
+        # Google News appends " - <source>" to each headline; trim it.
+        if source and title.endswith(f" - {source}"):
+            title = title[: -(len(source) + 3)].rstrip()
+        items.append(
+            {
+                "title": title,
+                "link": _xml_first(block, "link"),
+                "source": source,
+                "published_at": _rfc822_to_iso(_xml_first(block, "pubDate")),
+            }
+        )
+    return items
+
+
+def fetch_stock_insight(raw_symbol: str, *, news_limit: int = 6) -> dict[str, Any]:
+    """Company profile + recent news for one symbol (lazy detail-panel payload)."""
+    symbol = normalize_hk_symbol(raw_symbol)
+    stock = next(
+        (item for item in combined_watchlist() if item["symbol"] == symbol), None
+    )
+    if stock is None:
+        stock = {
+            "symbol": symbol,
+            "code": _digits(symbol).zfill(4),
+            "name": _resolve_symbol_name(symbol) or symbol,
+            "sector": "自选",
+            "currency": "HKD",
+        }
+    profile = _profile_for(stock)
+    news_name = profile.get("name_cn") or stock.get("name") or symbol
+    news: list[dict[str, Any]] = []
+    news_error: str | None = None
+    try:
+        news = _fetch_google_news(news_name, limit=news_limit)
+    except Exception as exc:  # noqa: BLE001
+        news_error = str(exc)
+    return {
+        "symbol": symbol,
+        "profile": profile,
+        "news": news,
+        "news_query": news_name,
+        "news_error": news_error,
+        "generated_at": _now_iso(),
+    }
 
 
 def main() -> int:

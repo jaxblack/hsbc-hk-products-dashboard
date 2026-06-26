@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from app.hk_stocks import (
     add_custom_watchlist,
     fetch_single_quote,
+    fetch_stock_insight,
     load_custom_watchlist,
     load_hk_stock_snapshot,
     refresh_hk_stock_snapshot,
@@ -70,6 +71,15 @@ async def hk_stock_quote(symbol: str) -> dict:
     """On-demand real-time quote for a single symbol (live source chain)."""
     try:
         return fetch_single_quote(symbol)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/hk-stocks/insight")
+async def hk_stock_insight(symbol: str) -> dict:
+    """Company profile + recent news for one symbol (lazy detail-panel payload)."""
+    try:
+        return fetch_stock_insight(symbol)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 

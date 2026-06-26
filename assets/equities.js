@@ -98,6 +98,7 @@
     filters: { sector: "__ALL__", trend: "__ALL__", search: "" },
     autoTimer: null,
     activeUrl: DATA_URLS[0],
+    insightCache: {},
   };
 
   const escapeHtml = (s) =>
@@ -349,6 +350,7 @@
       sector: item.sector || "—",
       currency: item.currency || "HKD",
       custom: !!item.custom,
+      profile: item.profile || null,
       as_of: item.as_of || state.raw?.as_of || state.raw?.generated_at || "",
       source_mode: item.source_mode || providerLabel(state.raw && state.raw.provider),
       price: asNum(price.value),
@@ -696,6 +698,161 @@
     }[severity] || severity || "提示";
   }
 
+  // Transparent rule-based signal engine (NOT a black-box LLM): derives a
+  // trend stance + buy/sell/stop levels from the technical indicators already
+  // computed for the stock. Clearly disclaimed in the UI as non-advice.
+  function computeAISignal(stock) {
+    const p = stock.price;
+    if (!isNum(p)) return null;
+    const below = [stock.ma20, stock.ma50, stock.ma10, stock.bollinger_lower, stock.low, stock.prev_close]
+      .filter((v) => isNum(v) && v < p);
+    const above = [stock.bollinger_upper, stock.high, stock.ma5, stock.ma10, stock.ma20]
+      .filter((v) => isNum(v) && v > p);
+    const supports = Array.from(new Set(below)).sort((a, b) => b - a);
+    const resistances = Array.from(new Set(above)).sort((a, b) => a - b);
+    const nearestSup = supports[0];
+    const nearestRes = resistances[0];
+
+    const score = isNum(stock.factor_score) ? stock.factor_score : 50;
+    let stance, stanceCls;
+    if (score >= 65) { stance = "偏多"; stanceCls = "up"; }
+    else if (score >= 45) { stance = "中性"; stanceCls = "flat"; }
+    else { stance = "偏空"; stanceCls = "down"; }
+    const confidence = Math.round(Math.min(95, 35 + Math.abs(score - 50) * 1.6));
+
+    const basis = [];
+    if (isNum(stock.ma20)) basis.push(p >= stock.ma20 ? `现价站上 MA20（${fmtNum(stock.ma20)}），短期偏强` : `现价跌破 MA20（${fmtNum(stock.ma20)}），短期偏弱`);
+    if (isNum(stock.ma20) && isNum(stock.ma50)) basis.push(stock.ma20 >= stock.ma50 ? "MA20 在 MA50 上方，中期趋势向上" : "MA20 在 MA50 下方，中期趋势承压");
+    if (isNum(stock.rsi14)) { const r = stock.rsi14; basis.push(`RSI(14)=${r.toFixed(0)}，${r >= 70 ? "超买、注意回调" : r <= 30 ? "超卖、或有反弹" : r >= 50 ? "处多头区" : "处空头区"}`); }
+    if (isNum(stock.macd_histogram)) basis.push(stock.macd_histogram >= 0 ? "MACD 柱状在零轴上方，动能偏多" : "MACD 柱状在零轴下方，动能偏空");
+    if (isNum(stock.bollinger_upper) && p >= stock.bollinger_upper) basis.push("触及布林上轨，短线偏热");
+    else if (isNum(stock.bollinger_lower) && p <= stock.bollinger_lower) basis.push("触及布林下轨，短线超跌");
+    if (isNum(stock.volatility_annualized)) basis.push(`年化波动 ${stock.volatility_annualized.toFixed(0)}%，${stock.volatility_annualized >= 40 ? "波动较大、控制仓位" : "波动温和"}`);
+
+    let buyLow, buyHigh;
+    if (isNum(nearestSup)) { buyLow = nearestSup; buyHigh = Math.min(p, nearestSup * 1.015); }
+    else { buyLow = p * 0.985; buyHigh = p; }
+    if (buyHigh < buyLow) buyHigh = buyLow;
+    const target = isNum(nearestRes) ? nearestRes : p * 1.06;
+    const stopBase = supports.length ? supports[supports.length - 1] : (isNum(stock.low) ? stock.low : p * 0.95);
+    const stop = stopBase * 0.97;
+    const limited = !isNum(stock.ma20) && !isNum(stock.bollinger_upper);
+
+    let advice;
+    if (stance === "偏多") advice = `偏多结构。可在 ${fmtNum(buyLow)}–${fmtNum(buyHigh)} 回调分批布局，上看 ${fmtNum(target)}，跌破 ${fmtNum(stop)} 止损。`;
+    else if (stance === "中性") advice = `区间震荡。${fmtNum(buyLow)} 附近低吸、${fmtNum(target)} 附近减磅，有效跌破 ${fmtNum(stop)} 离场。`;
+    else advice = `偏弱结构，以观望 / 逢高减磅为主。上方压力 ${fmtNum(target)}，站稳 ${fmtNum(buyHigh)} 上方再考虑，止损 ${fmtNum(stop)}。`;
+
+    return { stance, stanceCls, confidence, basis, buyLow, buyHigh, target, stop, limited, advice };
+  }
+
+  function renderProfileBlock(stock) {
+    const prof = stock.profile || {};
+    const nameCn = prof.name_cn && prof.name_cn !== stock.name ? prof.name_cn : "";
+    const meta = [prof.industry, prof.sector].filter(Boolean).map(escapeHtml).join(" · ");
+    const summary = prof.summary
+      ? escapeHtml(prof.summary)
+      : "暂无简介，可参考下方最近新闻了解动态。";
+    return `
+      <section class="profile-card">
+        <div class="sub-head">
+          <h4>公司简介${nameCn ? `　${escapeHtml(nameCn)}` : ""}</h4>
+          ${meta ? `<span class="sub-meta">${meta}</span>` : ""}
+        </div>
+        <p class="profile-summary">${summary}</p>
+      </section>`;
+  }
+
+  function renderAIBlock(stock) {
+    const ai = computeAISignal(stock);
+    if (!ai) return "";
+    const basisHtml = ai.basis.length
+      ? `<ul class="ai-basis">${ai.basis.map((b) => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`
+      : '<p class="muted">技术指标不足，点击“实时查询此股”获取完整信号。</p>';
+    const levels = [
+      ["建议买入区", `${fmtNum(ai.buyLow)} – ${fmtNum(ai.buyHigh)}`, "buy"],
+      ["目标价（卖出）", fmtNum(ai.target), "sell"],
+      ["止损参考", fmtNum(ai.stop), "stop"],
+    ];
+    const levelsHtml = levels
+      .map(([l, v, cls]) => `<div class="ai-level ${cls}"><span class="ai-l">${l}</span><span class="ai-v">${v}</span></div>`)
+      .join("");
+    return `
+      <section class="ai-card">
+        <div class="ai-head">
+          <h4>AI 趋势分析 / 买卖参考</h4>
+          <span class="ai-stance ${ai.stanceCls}">${ai.stance} · 信号 ${ai.confidence}</span>
+        </div>
+        <p class="ai-advice">${escapeHtml(ai.advice)}</p>
+        <div class="ai-levels">${levelsHtml}</div>
+        ${basisHtml}
+        <p class="ai-disclaimer">⚠️ 由规则引擎基于历史技术指标自动生成，<strong>非投资建议</strong>；买卖价为技术位参考。${ai.limited ? "（当前 quote-only 数据，指标受限）" : ""}</p>
+      </section>`;
+  }
+
+  function renderNewsBlock() {
+    return `
+      <section class="news-card">
+        <div class="sub-head">
+          <h4>最近新闻</h4>
+          <span class="sub-meta" id="eq-news-hint"></span>
+        </div>
+        <ul class="news-list" id="eq-news-list"><li class="muted">展开后自动加载…</li></ul>
+      </section>`;
+  }
+
+  function renderInsight(ticker, data) {
+    const listEl = document.getElementById("eq-news-list");
+    const hintEl = document.getElementById("eq-news-hint");
+    if (!listEl) return;
+    const news = Array.isArray(data.news) ? data.news : [];
+    if (!news.length) {
+      listEl.innerHTML = `<li class="muted">${data.news_error ? "新闻源暂不可用" : "暂无相关新闻"}</li>`;
+    } else {
+      listEl.innerHTML = news
+        .map((n) => {
+          const t = escapeHtml(n.title || "");
+          const src = escapeHtml(n.source || "");
+          const when = n.published_at ? fmtAsOf(n.published_at) : "";
+          const link = n.link ? escapeHtml(n.link) : "";
+          const title = link
+            ? `<a href="${link}" target="_blank" rel="noopener noreferrer">${t}</a>`
+            : t;
+          return `<li><span class="news-title">${title}</span><span class="news-meta">${src}${when ? ` · ${when}` : ""}</span></li>`;
+        })
+        .join("");
+    }
+    if (hintEl) hintEl.textContent = data.news_query ? `关键词：${data.news_query}` : "";
+  }
+
+  async function loadInsight(ticker) {
+    const listEl = document.getElementById("eq-news-list");
+    if (!listEl) return;
+    if (state.insightCache[ticker]) {
+      renderInsight(ticker, state.insightCache[ticker]);
+      return;
+    }
+    if (API.available !== true) {
+      listEl.innerHTML = '<li class="muted">公司新闻需运行 FastAPI 后端（/api/hk-stocks/insight）。</li>';
+      return;
+    }
+    listEl.innerHTML = '<li class="muted">加载新闻中…</li>';
+    try {
+      const resp = await fetch(
+        `/api/hk-stocks/insight?symbol=${encodeURIComponent(ticker)}&_=${Date.now()}`,
+        { cache: "no-store" },
+      );
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      state.insightCache[ticker] = data;
+      if (state.selected === ticker) renderInsight(ticker, data);
+    } catch (err) {
+      if (state.selected === ticker) {
+        listEl.innerHTML = `<li class="muted">新闻加载失败：${escapeHtml(err.message || String(err))}</li>`;
+      }
+    }
+  }
+
   function renderDetail(ticker) {
     const stock = state.stocks.find((item) => item.ticker === ticker);
     if (!stock) return;
@@ -779,6 +936,8 @@
         <span class="chg ${dc}" style="font-size:16px;">${changeText}</span>
         <span class="sector-tag">${escapeHtml(stock.sector)}</span>
       </div>
+      ${renderProfileBlock(stock)}
+      ${renderAIBlock(stock)}
       ${metricSection("Alert / Factor", alertMetrics)}
       <p class="detail-note">${escapeHtml(stock.alert.reason || "当前未触发额外规则。")}</p>
       ${metricSection("核心指标", coreMetrics)}
@@ -788,7 +947,10 @@
       ${metricSection("估值 / 分红", valuationMetrics)}
       <div class="flag-list">${flagList}</div>
       <div class="flag-list">${alertFlagList}</div>
+      ${renderNewsBlock()}
     `;
+
+    if (state.insightCache[ticker]) renderInsight(ticker, state.insightCache[ticker]);
 
     els.body.querySelectorAll("tr[data-ticker]").forEach((tr) => {
       tr.classList.toggle("selected", tr.dataset.ticker === ticker);
@@ -951,8 +1113,9 @@
     }
   }
 
-  function openDetail() {
+  function openDetail(ticker) {
     if (els.detail) els.detail.classList.add("open");
+    if (ticker) loadInsight(ticker);
   }
 
   function closeDetail() {
@@ -1002,7 +1165,7 @@
       const tr = e.target.closest("tr[data-ticker]");
       if (tr) {
         renderDetail(tr.dataset.ticker);
-        openDetail();
+        openDetail(tr.dataset.ticker);
       }
     });
     els.body.addEventListener("keydown", (e) => {
@@ -1011,7 +1174,7 @@
       if (tr) {
         e.preventDefault();
         renderDetail(tr.dataset.ticker);
-        openDetail();
+        openDetail(tr.dataset.ticker);
       }
     });
     if (els.detailClose) els.detailClose.addEventListener("click", closeDetail);

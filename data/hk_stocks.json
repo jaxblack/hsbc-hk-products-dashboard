@@ -1,8 +1,8 @@
 {
   "version": 1,
   "market": "HK",
-  "generated_at": "2026-06-26T06:47:21+00:00",
-  "as_of": "2026-06-26T06:47:21+00:00",
+  "generated_at": "2026-06-26T07:08:15+00:00",
+  "as_of": "2026-06-26T07:08:15+00:00",
   "provider": {
     "name": "embedded-mock",
     "mode": "mock-configured",
@@ -18,7 +18,7 @@
       "name": "HSBC Holdings",
       "sector": "Banking",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -245,6 +245,12 @@
         "prev_close": 70.0838,
         "prev_change_pct": -0.0274
       },
+      "profile": {
+        "name_cn": "汇丰控股",
+        "summary": "全球性银行与金融服务集团，业务覆盖财富管理与个人银行、工商金融及环球银行与资本市场，在香港与伦敦上市，是高股息蓝筹代表。",
+        "sector": "Banking",
+        "industry": "综合性银行"
+      },
       "factor": {
         "score": 78.7,
         "factorScore": 78.7,
@@ -280,7 +286,7 @@
       "name": "Tencent Holdings",
       "sector": "Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -507,6 +513,12 @@
         "prev_close": 443.011,
         "prev_change_pct": 0.4923
       },
+      "profile": {
+        "name_cn": "腾讯控股",
+        "summary": "中国互联网与科技龙头，核心业务包括微信/QQ 社交、网络游戏、金融科技与企业服务、网络广告及云业务。",
+        "sector": "Internet",
+        "industry": "互联网与游戏"
+      },
       "factor": {
         "score": 93.2,
         "factorScore": 93.2,
@@ -542,7 +554,7 @@
       "name": "China Mobile",
       "sector": "Telecom",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -769,6 +781,12 @@
         "prev_close": 76.1424,
         "prev_change_pct": 0.1582
       },
+      "profile": {
+        "name_cn": "中国移动",
+        "summary": "全球用户规模领先的电信运营商，提供移动与宽带通信、5G、算力网络等服务，现金流稳健、股息率较高。",
+        "sector": "Telecom",
+        "industry": "电信运营"
+      },
       "factor": {
         "score": 70.0,
         "factorScore": 70.0,
@@ -804,7 +822,7 @@
       "name": "AIA Group",
       "sector": "Insurance",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1031,6 +1049,12 @@
         "prev_close": 60.1575,
         "prev_change_pct": -0.0938
       },
+      "profile": {
+        "name_cn": "友邦保险",
+        "summary": "泛亚领先的人寿与健康保险集团，业务覆盖中国内地、香港及东南亚多个市场，以代理人渠道与价值增长见长。",
+        "sector": "Insurance",
+        "industry": "人寿保险"
+      },
       "factor": {
         "score": 63.3,
         "factorScore": 63.3,
@@ -1066,7 +1090,7 @@
       "name": "Xiaomi",
       "sector": "Consumer Electronics",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1293,6 +1317,12 @@
         "prev_close": 22.2664,
         "prev_change_pct": 0.0476
       },
+      "profile": {
+        "name_cn": "小米集团-W",
+        "summary": "智能手机、IoT 与生活消费产品及互联网服务公司，近年布局智能电动汽车，主打高性价比与生态链。",
+        "sector": "Consumer Electronics",
+        "industry": "消费电子与智能硬件"
+      },
       "factor": {
         "score": 82.5,
         "factorScore": 82.5,
@@ -1346,7 +1376,7 @@
       "name": "Ping An Insurance",
       "sector": "Insurance",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1573,6 +1603,12 @@
         "prev_close": 51.1282,
         "prev_change_pct": 0.3273
       },
+      "profile": {
+        "name_cn": "中国平安",
+        "summary": "综合金融与医疗健康集团，涵盖寿险、财险、银行、资产管理与科技业务，推进“综合金融+医疗养老”战略。",
+        "sector": "Insurance",
+        "industry": "综合金融"
+      },
       "factor": {
         "score": 94.3,
         "factorScore": 94.3,
@@ -1608,7 +1644,7 @@
       "name": "Meituan",
       "sector": "Consumer Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1835,6 +1871,12 @@
         "prev_close": 138.4286,
         "prev_change_pct": 0.5833
       },
+      "profile": {
+        "name_cn": "美团-W",
+        "summary": "中国领先的本地生活服务平台，覆盖外卖、到店、酒旅与即时零售（美团闪购、买菜等），并布局无人配送。",
+        "sector": "Consumer Internet",
+        "industry": "本地生活服务"
+      },
       "factor": {
         "score": 91.8,
         "factorScore": 91.8,
@@ -1870,7 +1912,7 @@
       "name": "Alibaba Group",
       "sector": "E-Commerce",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -2097,6 +2139,12 @@
         "prev_close": 94.0999,
         "prev_change_pct": 0.3236
       },
+      "profile": {
+        "name_cn": "阿里巴巴-W",
+        "summary": "中国电商与云计算龙头，业务含淘宝天猫、国际数字商业、阿里云、菜鸟物流与数字媒体娱乐。",
+        "sector": "E-Commerce",
+        "industry": "电商与云计算"
+      },
       "factor": {
         "score": 85.9,
         "factorScore": 85.9,
@@ -2132,7 +2180,7 @@
       "name": "Kuaishou",
       "sector": "Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -2359,6 +2407,12 @@
         "prev_close": 25.9955,
         "prev_change_pct": 0.0828
       },
+      "profile": {
+        "name_cn": "快手-W",
+        "summary": "中国短视频与直播平台，业务涵盖内容社区、直播电商、线上营销服务，并发力可灵 AI 视频生成。",
+        "sector": "Internet",
+        "industry": "短视频与直播"
+      },
       "factor": {
         "score": 85.6,
         "factorScore": 85.6,
@@ -2394,7 +2448,7 @@
       "name": "JD.com",
       "sector": "E-Commerce",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -2621,6 +2675,12 @@
         "prev_close": 529.5021,
         "prev_change_pct": 0.1757
       },
+      "profile": {
+        "name_cn": "京东集团-SW",
+        "summary": "以自营零售与一体化供应链物流为核心的电商企业，涉足零售、京东物流与科技服务。",
+        "sector": "E-Commerce",
+        "industry": "电商与供应链"
+      },
       "factor": {
         "score": 63.2,
         "factorScore": 63.2,
@@ -2656,7 +2716,7 @@
       "name": "NetEase",
       "sector": "Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -2883,6 +2943,12 @@
         "prev_close": 183.8999,
         "prev_change_pct": 0.1844
       },
+      "profile": {
+        "name_cn": "网易-S",
+        "summary": "以网络游戏为核心，兼有有道教育、网易云音乐与互联网增值服务，自研精品游戏出海。",
+        "sector": "Internet",
+        "industry": "网络游戏"
+      },
       "factor": {
         "score": 65.2,
         "factorScore": 65.2,
@@ -2934,7 +3000,7 @@
       "name": "Baidu",
       "sector": "Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -3161,6 +3227,12 @@
         "prev_close": 206.9678,
         "prev_change_pct": 0.0774
       },
+      "profile": {
+        "name_cn": "百度集团-SW",
+        "summary": "中国搜索与人工智能公司，布局文心大模型、百度智能云与 Apollo 自动驾驶（萝卜快跑）。",
+        "sector": "Internet",
+        "industry": "搜索与人工智能"
+      },
       "factor": {
         "score": 81.5,
         "factorScore": 81.5,
@@ -3196,7 +3268,7 @@
       "name": "SMIC",
       "sector": "Semiconductors",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -3423,6 +3495,12 @@
         "prev_close": 418.2813,
         "prev_change_pct": 0.2327
       },
+      "profile": {
+        "name_cn": "中芯国际",
+        "summary": "中国内地规模最大、技术最先进的晶圆代工厂之一，提供集成电路制造及配套设计服务。",
+        "sector": "Semiconductors",
+        "industry": "半导体代工"
+      },
       "factor": {
         "score": 73.5,
         "factorScore": 73.5,
@@ -3458,7 +3536,7 @@
       "name": "Lenovo Group",
       "sector": "Consumer Electronics",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -3685,6 +3763,12 @@
         "prev_close": 68.054,
         "prev_change_pct": 0.3464
       },
+      "profile": {
+        "name_cn": "联想集团",
+        "summary": "全球个人电脑与设备龙头，业务含 PC、智能设备、基础设施方案（服务器）与解决方案服务。",
+        "sector": "Consumer Electronics",
+        "industry": "PC 与硬件设备"
+      },
       "factor": {
         "score": 96.8,
         "factorScore": 96.8,
@@ -3738,7 +3822,7 @@
       "name": "SenseTime",
       "sector": "Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -3965,6 +4049,12 @@
         "prev_close": 453.5636,
         "prev_change_pct": 0.7403
       },
+      "profile": {
+        "name_cn": "商汤-W",
+        "summary": "人工智能软件公司，提供计算机视觉、日日新大模型与生成式 AI、智能产业及智能汽车解决方案。",
+        "sector": "Internet",
+        "industry": "人工智能软件"
+      },
       "factor": {
         "score": 93.9,
         "factorScore": 93.9,
@@ -4018,7 +4108,7 @@
       "name": "Sunny Optical",
       "sector": "Consumer Electronics",
       "currency": "HKD",
-      "as_of": "2026-06-26T06:47:21+00:00",
+      "as_of": "2026-06-26T07:08:15+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -4244,6 +4334,12 @@
         "spread": null,
         "prev_close": 19.1109,
         "prev_change_pct": 0.5165
+      },
+      "profile": {
+        "name_cn": "舜宇光学科技",
+        "summary": "光学零件与镜头模组供应商，产品用于智能手机、车载摄像、AR/VR 与安防等领域。",
+        "sector": "Consumer Electronics",
+        "industry": "光学元件"
       },
       "factor": {
         "score": 100,
