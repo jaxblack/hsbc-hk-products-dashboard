@@ -1,8 +1,8 @@
 {
   "version": 1,
   "market": "HK",
-  "generated_at": "2026-06-26T03:00:00+00:00",
-  "as_of": "2026-06-26T03:00:00+00:00",
+  "generated_at": "2026-06-26T03:51:58+00:00",
+  "as_of": "2026-06-26T03:51:58+00:00",
   "provider": {
     "name": "embedded-mock",
     "mode": "mock-fallback",
@@ -18,7 +18,7 @@
       "name": "HSBC Holdings",
       "sector": "Banking",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:00:00+00:00",
+      "as_of": "2026-06-26T03:51:58+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -194,9 +194,42 @@
             "label": "估值/股息",
             "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
             "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
           }
         }
-      }
+      },
+      "factor": {
+        "score": 78.7,
+        "factorScore": 78.7,
+        "band": "bullish",
+        "components": {
+          "trend": 17.7,
+          "momentum": -2.0,
+          "risk_value": 13.0
+        }
+      },
+      "alert": {
+        "trigger": "trend_stack_bullish",
+        "severity": "low",
+        "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+        "matchedRules": [
+          "trend-stack-bullish"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
     },
     {
       "symbol": "0700.HK",
@@ -204,7 +237,7 @@
       "name": "Tencent Holdings",
       "sector": "Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:00:00+00:00",
+      "as_of": "2026-06-26T03:51:58+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -380,9 +413,42 @@
             "label": "估值/股息",
             "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
             "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
           }
         }
-      }
+      },
+      "factor": {
+        "score": 93.2,
+        "factorScore": 93.2,
+        "band": "strong_bullish",
+        "components": {
+          "trend": 26.2,
+          "momentum": 8.0,
+          "risk_value": 9.0
+        }
+      },
+      "alert": {
+        "trigger": "trend_stack_bullish",
+        "severity": "low",
+        "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+        "matchedRules": [
+          "trend-stack-bullish"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
     },
     {
       "symbol": "0941.HK",
@@ -390,7 +456,7 @@
       "name": "China Mobile",
       "sector": "Telecom",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:00:00+00:00",
+      "as_of": "2026-06-26T03:51:58+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -566,9 +632,42 @@
             "label": "估值/股息",
             "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
             "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
           }
         }
-      }
+      },
+      "factor": {
+        "score": 70.0,
+        "factorScore": 70.0,
+        "band": "bullish",
+        "components": {
+          "trend": 15.0,
+          "momentum": -8.0,
+          "risk_value": 13.0
+        }
+      },
+      "alert": {
+        "trigger": "trend_stack_bullish",
+        "severity": "low",
+        "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+        "matchedRules": [
+          "trend-stack-bullish"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
     },
     {
       "symbol": "1299.HK",
@@ -576,7 +675,7 @@
       "name": "AIA Group",
       "sector": "Insurance",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:00:00+00:00",
+      "as_of": "2026-06-26T03:51:58+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -752,9 +851,42 @@
             "label": "估值/股息",
             "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
             "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
           }
         }
-      }
+      },
+      "factor": {
+        "score": 63.3,
+        "factorScore": 63.3,
+        "band": "neutral",
+        "components": {
+          "trend": 14.3,
+          "momentum": -10.0,
+          "risk_value": 9.0
+        }
+      },
+      "alert": {
+        "trigger": "trend_stack_bullish",
+        "severity": "low",
+        "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+        "matchedRules": [
+          "trend-stack-bullish"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
     },
     {
       "symbol": "1810.HK",
@@ -762,7 +894,7 @@
       "name": "Xiaomi",
       "sector": "Consumer Electronics",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:00:00+00:00",
+      "as_of": "2026-06-26T03:51:58+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -938,9 +1070,60 @@
             "label": "估值/股息",
             "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
             "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
           }
         }
-      }
+      },
+      "factor": {
+        "score": 82.5,
+        "factorScore": 82.5,
+        "band": "strong_bullish",
+        "components": {
+          "trend": 25.5,
+          "momentum": -2.0,
+          "risk_value": 9.0
+        }
+      },
+      "alert": {
+        "trigger": "momentum_exhaustion",
+        "severity": "high",
+        "reason": "趋势仍强但 RSI / 偏离率已过热，factor score 为 82.5，注意追高风险。",
+        "matchedRules": [
+          "trend-stack-bullish",
+          "overbought-stretch"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "momentum_exhaustion",
+          "severity": "high",
+          "reason": "趋势仍强但 RSI / 偏离率已过热，factor score 为 82.5，注意追高风险。",
+          "matchedRules": [
+            "trend-stack-bullish",
+            "overbought-stretch"
+          ]
+        },
+        {
+          "trigger": "overbought_stretch",
+          "severity": "medium",
+          "reason": "RSI(14) 升至 99.5，现价较 MA20 高出 3.2%，短线偏热。",
+          "matchedRules": [
+            "overbought-stretch"
+          ]
+        },
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
     },
     {
       "symbol": "2318.HK",
@@ -948,7 +1131,7 @@
       "name": "Ping An Insurance",
       "sector": "Insurance",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:00:00+00:00",
+      "as_of": "2026-06-26T03:51:58+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1124,9 +1307,42 @@
             "label": "估值/股息",
             "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
             "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
           }
         }
-      }
+      },
+      "factor": {
+        "score": 94.3,
+        "factorScore": 94.3,
+        "band": "strong_bullish",
+        "components": {
+          "trend": 23.3,
+          "momentum": 8.0,
+          "risk_value": 13.0
+        }
+      },
+      "alert": {
+        "trigger": "trend_stack_bullish",
+        "severity": "low",
+        "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+        "matchedRules": [
+          "trend-stack-bullish"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
     },
     {
       "symbol": "3690.HK",
@@ -1134,7 +1350,7 @@
       "name": "Meituan",
       "sector": "Consumer Internet",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:00:00+00:00",
+      "as_of": "2026-06-26T03:51:58+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1310,9 +1526,42 @@
             "label": "估值/股息",
             "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
             "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
           }
         }
-      }
+      },
+      "factor": {
+        "score": 91.8,
+        "factorScore": 91.8,
+        "band": "strong_bullish",
+        "components": {
+          "trend": 24.8,
+          "momentum": 8.0,
+          "risk_value": 9.0
+        }
+      },
+      "alert": {
+        "trigger": "trend_stack_bullish",
+        "severity": "low",
+        "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+        "matchedRules": [
+          "trend-stack-bullish"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
     },
     {
       "symbol": "9988.HK",
@@ -1320,7 +1569,7 @@
       "name": "Alibaba Group",
       "sector": "E-Commerce",
       "currency": "HKD",
-      "as_of": "2026-06-26T03:00:00+00:00",
+      "as_of": "2026-06-26T03:51:58+00:00",
       "exchange": "Hong Kong",
       "source_mode": "mock",
       "price": {
@@ -1496,9 +1745,42 @@
             "label": "估值/股息",
             "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
             "unit": "mixed"
+          },
+          "factor_score": {
+            "label": "Factor Score",
+            "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+            "unit": "score"
           }
         }
-      }
+      },
+      "factor": {
+        "score": 85.9,
+        "factorScore": 85.9,
+        "band": "strong_bullish",
+        "components": {
+          "trend": 16.9,
+          "momentum": 4.0,
+          "risk_value": 15.0
+        }
+      },
+      "alert": {
+        "trigger": "trend_stack_bullish",
+        "severity": "low",
+        "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+        "matchedRules": [
+          "trend-stack-bullish"
+        ]
+      },
+      "alerts": [
+        {
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+          "matchedRules": [
+            "trend-stack-bullish"
+          ]
+        }
+      ]
     }
   ],
   "summary": {
@@ -1515,7 +1797,10 @@
     ],
     "advancing": 5,
     "declining": 3,
-    "fallback_count": 8
+    "fallback_count": 8,
+    "alert_count": 8,
+    "high_severity_alerts": 1,
+    "average_factor_score": 82.5
   },
   "metadata": {
     "indicator_definitions": {
@@ -1571,7 +1856,251 @@
         "label": "估值/股息",
         "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
         "unit": "mixed"
+      },
+      "factor_score": {
+        "label": "Factor Score",
+        "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+        "unit": "score"
       }
+    },
+    "alert_rule_model": {
+      "version": 1,
+      "description": "Threshold / crossover / composite rule model for the HK watchlist. Used to derive factor score and stock-level alert summaries.",
+      "rules": [
+        {
+          "id": "trend-breakout",
+          "type": "threshold",
+          "trigger": "trend_breakout",
+          "severity": "medium",
+          "priority": 60,
+          "conditions": [
+            {
+              "metric": "price_vs_ma20_pct",
+              "operator": ">=",
+              "value": 2.0
+            },
+            {
+              "metric": "change_pct",
+              "operator": ">=",
+              "value": 0.8
+            }
+          ],
+          "reason": "现价较 MA20 高出 {price_vs_ma20_pct:.1f}%，且当日涨幅达到 {change_pct:.1f}%。"
+        },
+        {
+          "id": "trend-breakdown",
+          "type": "threshold",
+          "trigger": "trend_breakdown",
+          "severity": "high",
+          "priority": 95,
+          "conditions": [
+            {
+              "metric": "price_vs_ma20_pct",
+              "operator": "<=",
+              "value": -2.0
+            },
+            {
+              "metric": "change_pct",
+              "operator": "<=",
+              "value": -0.8
+            }
+          ],
+          "reason": "现价较 MA20 低出 {price_vs_ma20_pct_abs:.1f}%，且当日跌幅达到 {change_pct_abs:.1f}%。"
+        },
+        {
+          "id": "trend-stack-bullish",
+          "type": "threshold",
+          "trigger": "trend_stack_bullish",
+          "severity": "low",
+          "priority": 35,
+          "conditions": [
+            {
+              "metric": "price_above_ma20",
+              "operator": "==",
+              "value": 1
+            },
+            {
+              "metric": "ma20_above_ma50",
+              "operator": "==",
+              "value": 1
+            }
+          ],
+          "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。"
+        },
+        {
+          "id": "trend-stack-bearish",
+          "type": "threshold",
+          "trigger": "trend_stack_bearish",
+          "severity": "medium",
+          "priority": 70,
+          "conditions": [
+            {
+              "metric": "price_above_ma20",
+              "operator": "==",
+              "value": 0
+            },
+            {
+              "metric": "ma20_above_ma50",
+              "operator": "==",
+              "value": 0
+            }
+          ],
+          "reason": "现价跌破 MA20，且 MA20 位于 MA50 下方，趋势结构偏弱。"
+        },
+        {
+          "id": "overbought-stretch",
+          "type": "threshold",
+          "trigger": "overbought_stretch",
+          "severity": "medium",
+          "priority": 75,
+          "conditions": [
+            {
+              "metric": "rsi14",
+              "operator": ">=",
+              "value": 75
+            },
+            {
+              "metric": "price_vs_ma20_pct",
+              "operator": ">=",
+              "value": 3.0
+            }
+          ],
+          "reason": "RSI(14) 升至 {rsi14:.1f}，现价较 MA20 高出 {price_vs_ma20_pct:.1f}%，短线偏热。"
+        },
+        {
+          "id": "oversold-stretch",
+          "type": "threshold",
+          "trigger": "oversold_stretch",
+          "severity": "medium",
+          "priority": 72,
+          "conditions": [
+            {
+              "metric": "rsi14",
+              "operator": "<=",
+              "value": 30
+            },
+            {
+              "metric": "price_vs_ma20_pct",
+              "operator": "<=",
+              "value": -3.0
+            }
+          ],
+          "reason": "RSI(14) 降至 {rsi14:.1f}，现价较 MA20 低出 {price_vs_ma20_pct_abs:.1f}%，进入超跌区。"
+        },
+        {
+          "id": "macd-bullish-cross",
+          "type": "crossover",
+          "trigger": "macd_bullish_cross",
+          "severity": "medium",
+          "priority": 58,
+          "fast_metric": "macd_line",
+          "slow_metric": "macd_signal",
+          "direction": "cross_over",
+          "reason": "MACD 线向上穿越信号线，动量开始改善。"
+        },
+        {
+          "id": "macd-bearish-cross",
+          "type": "crossover",
+          "trigger": "macd_bearish_cross",
+          "severity": "high",
+          "priority": 90,
+          "fast_metric": "macd_line",
+          "slow_metric": "macd_signal",
+          "direction": "cross_under",
+          "reason": "MACD 线向下跌破信号线，动量转弱。"
+        },
+        {
+          "id": "ma-golden-cross",
+          "type": "crossover",
+          "trigger": "ma_golden_cross",
+          "severity": "medium",
+          "priority": 55,
+          "fast_metric": "ma20",
+          "slow_metric": "ma50",
+          "direction": "cross_over",
+          "reason": "MA20 向上穿越 MA50，趋势出现黄金交叉。"
+        },
+        {
+          "id": "ma-death-cross",
+          "type": "crossover",
+          "trigger": "ma_death_cross",
+          "severity": "high",
+          "priority": 88,
+          "fast_metric": "ma20",
+          "slow_metric": "ma50",
+          "direction": "cross_under",
+          "reason": "MA20 向下跌破 MA50，趋势出现死亡交叉。"
+        },
+        {
+          "id": "bullish-composite",
+          "type": "composite",
+          "trigger": "bullish_composite",
+          "severity": "medium",
+          "priority": 82,
+          "all_of": [
+            "trend-stack-bullish"
+          ],
+          "any_of": [
+            "trend-breakout",
+            "macd-bullish-cross",
+            "ma-golden-cross"
+          ],
+          "factor_score_min": 65,
+          "reason": "趋势与动量形成共振，factor score 为 {factor_score:.1f}，命中规则：{matched_rules_text}。"
+        },
+        {
+          "id": "bearish-composite",
+          "type": "composite",
+          "trigger": "bearish_composite",
+          "severity": "high",
+          "priority": 100,
+          "all_of": [
+            "trend-stack-bearish"
+          ],
+          "any_of": [
+            "trend-breakdown",
+            "macd-bearish-cross",
+            "ma-death-cross"
+          ],
+          "factor_score_max": 35,
+          "reason": "趋势与动量同步走弱，factor score 仅 {factor_score:.1f}，命中规则：{matched_rules_text}。"
+        },
+        {
+          "id": "momentum-exhaustion",
+          "type": "composite",
+          "trigger": "momentum_exhaustion",
+          "severity": "high",
+          "priority": 92,
+          "all_of": [
+            "trend-stack-bullish",
+            "overbought-stretch"
+          ],
+          "factor_score_min": 70,
+          "reason": "趋势仍强但 RSI / 偏离率已过热，factor score 为 {factor_score:.1f}，注意追高风险。"
+        }
+      ],
+      "factor_bands": [
+        {
+          "min": 80,
+          "label": "strong_bullish"
+        },
+        {
+          "min": 65,
+          "label": "bullish"
+        },
+        {
+          "min": 45,
+          "label": "neutral"
+        },
+        {
+          "min": 30,
+          "label": "bearish"
+        },
+        {
+          "min": 0,
+          "label": "strong_bearish"
+        }
+      ]
     },
     "watchlist_strategy": "Core HK large-cap and actively discussed retail names",
     "fallback_policy": "If live upstream calls fail or HK_STOCKS_PROVIDER=mock, the service returns deterministic mock data with MOCK_DATA risk flags."

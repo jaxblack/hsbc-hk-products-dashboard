@@ -137,6 +137,176 @@ INDICATOR_METADATA = {
         "description": "市值、TTM PE、PB、TTM EPS、股息率等可得基本面字段。",
         "unit": "mixed",
     },
+    "factor_score": {
+        "label": "Factor Score",
+        "description": "综合趋势、动量、波动与估值信号的 0-100 分数；越高表示多头因素越占优。",
+        "unit": "score",
+    },
+}
+
+ALERT_RULE_MODEL = {
+    "version": 1,
+    "description": (
+        "Threshold / crossover / composite rule model for the HK watchlist. "
+        "Used to derive factor score and stock-level alert summaries."
+    ),
+    "rules": [
+        {
+            "id": "trend-breakout",
+            "type": "threshold",
+            "trigger": "trend_breakout",
+            "severity": "medium",
+            "priority": 60,
+            "conditions": [
+                {"metric": "price_vs_ma20_pct", "operator": ">=", "value": 2.0},
+                {"metric": "change_pct", "operator": ">=", "value": 0.8},
+            ],
+            "reason": "现价较 MA20 高出 {price_vs_ma20_pct:.1f}%，且当日涨幅达到 {change_pct:.1f}%。",
+        },
+        {
+            "id": "trend-breakdown",
+            "type": "threshold",
+            "trigger": "trend_breakdown",
+            "severity": "high",
+            "priority": 95,
+            "conditions": [
+                {"metric": "price_vs_ma20_pct", "operator": "<=", "value": -2.0},
+                {"metric": "change_pct", "operator": "<=", "value": -0.8},
+            ],
+            "reason": "现价较 MA20 低出 {price_vs_ma20_pct_abs:.1f}%，且当日跌幅达到 {change_pct_abs:.1f}%。",
+        },
+        {
+            "id": "trend-stack-bullish",
+            "type": "threshold",
+            "trigger": "trend_stack_bullish",
+            "severity": "low",
+            "priority": 35,
+            "conditions": [
+                {"metric": "price_above_ma20", "operator": "==", "value": 1},
+                {"metric": "ma20_above_ma50", "operator": "==", "value": 1},
+            ],
+            "reason": "现价站上 MA20，且 MA20 继续位于 MA50 上方，趋势结构偏多。",
+        },
+        {
+            "id": "trend-stack-bearish",
+            "type": "threshold",
+            "trigger": "trend_stack_bearish",
+            "severity": "medium",
+            "priority": 70,
+            "conditions": [
+                {"metric": "price_above_ma20", "operator": "==", "value": 0},
+                {"metric": "ma20_above_ma50", "operator": "==", "value": 0},
+            ],
+            "reason": "现价跌破 MA20，且 MA20 位于 MA50 下方，趋势结构偏弱。",
+        },
+        {
+            "id": "overbought-stretch",
+            "type": "threshold",
+            "trigger": "overbought_stretch",
+            "severity": "medium",
+            "priority": 75,
+            "conditions": [
+                {"metric": "rsi14", "operator": ">=", "value": 75},
+                {"metric": "price_vs_ma20_pct", "operator": ">=", "value": 3.0},
+            ],
+            "reason": "RSI(14) 升至 {rsi14:.1f}，现价较 MA20 高出 {price_vs_ma20_pct:.1f}%，短线偏热。",
+        },
+        {
+            "id": "oversold-stretch",
+            "type": "threshold",
+            "trigger": "oversold_stretch",
+            "severity": "medium",
+            "priority": 72,
+            "conditions": [
+                {"metric": "rsi14", "operator": "<=", "value": 30},
+                {"metric": "price_vs_ma20_pct", "operator": "<=", "value": -3.0},
+            ],
+            "reason": "RSI(14) 降至 {rsi14:.1f}，现价较 MA20 低出 {price_vs_ma20_pct_abs:.1f}%，进入超跌区。",
+        },
+        {
+            "id": "macd-bullish-cross",
+            "type": "crossover",
+            "trigger": "macd_bullish_cross",
+            "severity": "medium",
+            "priority": 58,
+            "fast_metric": "macd_line",
+            "slow_metric": "macd_signal",
+            "direction": "cross_over",
+            "reason": "MACD 线向上穿越信号线，动量开始改善。",
+        },
+        {
+            "id": "macd-bearish-cross",
+            "type": "crossover",
+            "trigger": "macd_bearish_cross",
+            "severity": "high",
+            "priority": 90,
+            "fast_metric": "macd_line",
+            "slow_metric": "macd_signal",
+            "direction": "cross_under",
+            "reason": "MACD 线向下跌破信号线，动量转弱。",
+        },
+        {
+            "id": "ma-golden-cross",
+            "type": "crossover",
+            "trigger": "ma_golden_cross",
+            "severity": "medium",
+            "priority": 55,
+            "fast_metric": "ma20",
+            "slow_metric": "ma50",
+            "direction": "cross_over",
+            "reason": "MA20 向上穿越 MA50，趋势出现黄金交叉。",
+        },
+        {
+            "id": "ma-death-cross",
+            "type": "crossover",
+            "trigger": "ma_death_cross",
+            "severity": "high",
+            "priority": 88,
+            "fast_metric": "ma20",
+            "slow_metric": "ma50",
+            "direction": "cross_under",
+            "reason": "MA20 向下跌破 MA50，趋势出现死亡交叉。",
+        },
+        {
+            "id": "bullish-composite",
+            "type": "composite",
+            "trigger": "bullish_composite",
+            "severity": "medium",
+            "priority": 82,
+            "all_of": ["trend-stack-bullish"],
+            "any_of": ["trend-breakout", "macd-bullish-cross", "ma-golden-cross"],
+            "factor_score_min": 65,
+            "reason": "趋势与动量形成共振，factor score 为 {factor_score:.1f}，命中规则：{matched_rules_text}。",
+        },
+        {
+            "id": "bearish-composite",
+            "type": "composite",
+            "trigger": "bearish_composite",
+            "severity": "high",
+            "priority": 100,
+            "all_of": ["trend-stack-bearish"],
+            "any_of": ["trend-breakdown", "macd-bearish-cross", "ma-death-cross"],
+            "factor_score_max": 35,
+            "reason": "趋势与动量同步走弱，factor score 仅 {factor_score:.1f}，命中规则：{matched_rules_text}。",
+        },
+        {
+            "id": "momentum-exhaustion",
+            "type": "composite",
+            "trigger": "momentum_exhaustion",
+            "severity": "high",
+            "priority": 92,
+            "all_of": ["trend-stack-bullish", "overbought-stretch"],
+            "factor_score_min": 70,
+            "reason": "趋势仍强但 RSI / 偏离率已过热，factor score 为 {factor_score:.1f}，注意追高风险。",
+        },
+    ],
+    "factor_bands": [
+        {"min": 80, "label": "strong_bullish"},
+        {"min": 65, "label": "bullish"},
+        {"min": 45, "label": "neutral"},
+        {"min": 30, "label": "bearish"},
+        {"min": 0, "label": "strong_bearish"},
+    ],
 }
 
 MOCK_STOCK_CONFIG = {
@@ -516,6 +686,282 @@ def _calculate_indicators(
     }
 
 
+def _pct_gap(numerator: float | None, denominator: float | None) -> float | None:
+    if numerator is None or denominator in (None, 0):
+        return None
+    return ((numerator - denominator) / denominator) * 100
+
+
+def _clamp(value: float, lower: float, upper: float) -> float:
+    return max(lower, min(upper, value))
+
+
+def _compare_metric(left: float | int | None, operator: str, right: float | int) -> bool:
+    if left is None:
+        return False
+    if operator == ">=":
+        return left >= right
+    if operator == "<=":
+        return left <= right
+    if operator == ">":
+        return left > right
+    if operator == "<":
+        return left < right
+    if operator == "==":
+        return left == right
+    raise ValueError(f"unsupported operator: {operator}")
+
+
+def _build_alert_metrics(entry: dict[str, Any], closes: list[float]) -> dict[str, float | int | None]:
+    price_value = entry["price"]["value"]
+    moving = entry["moving_averages"]
+    momentum = entry["momentum"]
+    macd = momentum["macd"]
+    valuation = entry["valuation"]
+    previous_closes = closes[:-1]
+    previous_macd = _calculate_macd(previous_closes) if len(previous_closes) >= 26 else {
+        "line": None,
+        "signal": None,
+        "histogram": None,
+    }
+    previous_ma20 = _simple_moving_average(previous_closes, 20)
+    previous_ma50 = _simple_moving_average(previous_closes, 50)
+    price_vs_ma20 = _pct_gap(price_value, moving["ma20"])
+    price_vs_ma50 = _pct_gap(price_value, moving["ma50"])
+    return {
+        "price": price_value,
+        "change_pct": entry["change"]["percent"],
+        "change_pct_abs": abs(entry["change"]["percent"]) if entry["change"]["percent"] is not None else None,
+        "price_vs_ma20_pct": _safe_pct(price_vs_ma20),
+        "price_vs_ma20_pct_abs": abs(price_vs_ma20) if price_vs_ma20 is not None else None,
+        "price_vs_ma50_pct": _safe_pct(price_vs_ma50),
+        "ma20": moving["ma20"],
+        "ma50": moving["ma50"],
+        "ma20_prev": round(previous_ma20, 4) if previous_ma20 is not None else None,
+        "ma50_prev": round(previous_ma50, 4) if previous_ma50 is not None else None,
+        "rsi14": momentum["rsi14"],
+        "macd_line": macd["line"],
+        "macd_signal": macd["signal"],
+        "macd_histogram": macd["histogram"],
+        "macd_line_prev": previous_macd["line"],
+        "macd_signal_prev": previous_macd["signal"],
+        "macd_histogram_prev": previous_macd["histogram"],
+        "turnover_rate_pct": entry["liquidity"]["turnover_rate_pct"],
+        "annualized_volatility_pct": entry["volatility"]["annualized_30d_pct"],
+        "pe_ttm": valuation["pe_ttm"],
+        "pb_ratio": valuation["pb_ratio"],
+        "dividend_yield_pct": valuation["dividend_yield_pct"],
+        "price_above_ma20": 1 if price_value is not None and moving["ma20"] is not None and price_value >= moving["ma20"] else 0,
+        "ma20_above_ma50": 1 if moving["ma20"] is not None and moving["ma50"] is not None and moving["ma20"] >= moving["ma50"] else 0,
+    }
+
+
+def _compute_factor_score(metrics: dict[str, float | int | None]) -> dict[str, Any]:
+    trend = 0.0
+    price_vs_ma20 = metrics["price_vs_ma20_pct"]
+    price_vs_ma50 = metrics["price_vs_ma50_pct"]
+    change_pct = metrics["change_pct"]
+    if price_vs_ma20 is not None:
+        trend += _clamp(float(price_vs_ma20) * 2.4, -12, 12)
+    if price_vs_ma50 is not None:
+        trend += _clamp(float(price_vs_ma50) * 1.2, -8, 8)
+    trend += 10 if metrics["ma20_above_ma50"] == 1 else -10
+    if change_pct is not None:
+        trend += _clamp(float(change_pct) * 4, -8, 8)
+
+    momentum = 0.0
+    macd_hist = metrics["macd_histogram"]
+    macd_hist_prev = metrics["macd_histogram_prev"]
+    rsi14 = metrics["rsi14"]
+    momentum += 8 if macd_hist is not None and macd_hist >= 0 else -8
+    if macd_hist is not None and macd_hist_prev is not None:
+        momentum += 5 if macd_hist >= macd_hist_prev else -5
+    if rsi14 is not None:
+        if 50 <= float(rsi14) <= 68:
+            momentum += 7
+        elif 68 < float(rsi14) <= 80:
+            momentum += 3
+        elif 35 <= float(rsi14) < 50:
+            momentum -= 2
+        elif float(rsi14) < 35:
+            momentum -= 8
+        else:
+            momentum -= 5
+
+    risk_value = 0.0
+    annualized_vol = metrics["annualized_volatility_pct"]
+    turnover_rate = metrics["turnover_rate_pct"]
+    pe_ttm = metrics["pe_ttm"]
+    dividend_yield_pct = metrics["dividend_yield_pct"]
+    if annualized_vol is not None:
+        if float(annualized_vol) <= 20:
+            risk_value += 5
+        elif float(annualized_vol) >= 40:
+            risk_value -= 8
+    if turnover_rate is not None:
+        risk_value += 4 if float(turnover_rate) >= 0.15 else -2
+    if pe_ttm is not None:
+        if 0 < float(pe_ttm) <= 18:
+            risk_value += 6
+        elif float(pe_ttm) >= 35:
+            risk_value -= 6
+    if dividend_yield_pct is not None and float(dividend_yield_pct) >= 4:
+        risk_value += 4
+
+    score = _clamp(50 + trend + momentum + risk_value, 0, 100)
+    band = next(
+        band_item["label"]
+        for band_item in ALERT_RULE_MODEL["factor_bands"]
+        if score >= band_item["min"]
+    )
+    return {
+        "score": round(score, 1),
+        "factorScore": round(score, 1),
+        "band": band,
+        "components": {
+            "trend": round(trend, 1),
+            "momentum": round(momentum, 1),
+            "risk_value": round(risk_value, 1),
+        },
+    }
+
+
+def _evaluate_threshold_rule(
+    rule: dict[str, Any], metrics: dict[str, float | int | None], factor: dict[str, Any]
+) -> dict[str, Any] | None:
+    if not all(
+        _compare_metric(metrics.get(cond["metric"]), cond["operator"], cond["value"])
+        for cond in rule["conditions"]
+    ):
+        return None
+    context = {**metrics, "factor_score": factor["score"]}
+    return {
+        "id": rule["id"],
+        "type": rule["type"],
+        "trigger": rule["trigger"],
+        "severity": rule["severity"],
+        "priority": rule["priority"],
+        "reason": rule["reason"].format(**context),
+        "matchedRules": [rule["id"]],
+    }
+
+
+def _evaluate_crossover_rule(
+    rule: dict[str, Any], metrics: dict[str, float | int | None]
+) -> dict[str, Any] | None:
+    fast_metric = metrics.get(rule["fast_metric"])
+    slow_metric = metrics.get(rule["slow_metric"])
+    fast_prev = metrics.get(f"{rule['fast_metric']}_prev")
+    slow_prev = metrics.get(f"{rule['slow_metric']}_prev")
+    if None in {fast_metric, slow_metric, fast_prev, slow_prev}:
+        return None
+    crossed = (
+        fast_prev < slow_prev and fast_metric >= slow_metric
+        if rule["direction"] == "cross_over"
+        else fast_prev > slow_prev and fast_metric <= slow_metric
+    )
+    if not crossed:
+        return None
+    return {
+        "id": rule["id"],
+        "type": rule["type"],
+        "trigger": rule["trigger"],
+        "severity": rule["severity"],
+        "priority": rule["priority"],
+        "reason": rule["reason"],
+        "matchedRules": [rule["id"]],
+    }
+
+
+def _evaluate_composite_rule(
+    rule: dict[str, Any],
+    matched_results: dict[str, dict[str, Any]],
+    factor: dict[str, Any],
+) -> dict[str, Any] | None:
+    all_of = rule.get("all_of", [])
+    any_of = rule.get("any_of", [])
+    if any(rule_id not in matched_results for rule_id in all_of):
+        return None
+    if any_of and not any(rule_id in matched_results for rule_id in any_of):
+        return None
+    score = factor["score"]
+    min_score = rule.get("factor_score_min")
+    max_score = rule.get("factor_score_max")
+    if min_score is not None and score < min_score:
+        return None
+    if max_score is not None and score > max_score:
+        return None
+    matched_rule_ids = list(dict.fromkeys(all_of + [item for item in any_of if item in matched_results]))
+    matched_rules_text = ", ".join(matched_rule_ids)
+    return {
+        "id": rule["id"],
+        "type": rule["type"],
+        "trigger": rule["trigger"],
+        "severity": rule["severity"],
+        "priority": rule["priority"],
+        "reason": rule["reason"].format(
+            factor_score=score,
+            matched_rules_text=matched_rules_text,
+        ),
+        "matchedRules": matched_rule_ids,
+    }
+
+
+def _build_alert_factor(
+    entry: dict[str, Any], closes: list[float]
+) -> tuple[dict[str, Any], dict[str, Any], list[dict[str, Any]]]:
+    metrics = _build_alert_metrics(entry, closes)
+    factor = _compute_factor_score(metrics)
+    matched_results: dict[str, dict[str, Any]] = {}
+    for rule in ALERT_RULE_MODEL["rules"]:
+        if rule["type"] == "threshold":
+            result = _evaluate_threshold_rule(rule, metrics, factor)
+        elif rule["type"] == "crossover":
+            result = _evaluate_crossover_rule(rule, metrics)
+        else:
+            continue
+        if result:
+            matched_results[rule["id"]] = result
+    for rule in ALERT_RULE_MODEL["rules"]:
+        if rule["type"] != "composite":
+            continue
+        result = _evaluate_composite_rule(rule, matched_results, factor)
+        if result:
+            matched_results[rule["id"]] = result
+    ordered_results = sorted(
+        matched_results.values(),
+        key=lambda item: (
+            {"high": 3, "medium": 2, "low": 1, "info": 0}.get(item["severity"], 0),
+            item["priority"],
+        ),
+        reverse=True,
+    )
+    primary_alert = (
+        {
+            "trigger": ordered_results[0]["trigger"],
+            "severity": ordered_results[0]["severity"],
+            "reason": ordered_results[0]["reason"],
+            "matchedRules": ordered_results[0]["matchedRules"],
+        }
+        if ordered_results
+        else {
+            "trigger": "none",
+            "severity": "info",
+            "reason": "当前未触发预设规则，factor score 处于中性区间。",
+            "matchedRules": [],
+        }
+    )
+    return factor, primary_alert, [
+        {
+            "trigger": item["trigger"],
+            "severity": item["severity"],
+            "reason": item["reason"],
+            "matchedRules": item["matchedRules"],
+        }
+        for item in ordered_results
+    ]
+
+
 def _build_stock_entry(
     stock: dict[str, Any],
     quote: dict[str, Any],
@@ -552,7 +998,7 @@ def _build_stock_entry(
         risk_flags.append("TURNOVER_RATE_UNAVAILABLE")
     if dividend_yield_pct is None or eps_ttm is None:
         risk_flags.append("PARTIAL_FUNDAMENTALS")
-    return {
+    entry = {
         **stock,
         "as_of": _timestamp_to_iso(quote.get("regularMarketTime")) or _now_iso(),
         "exchange": quote.get("fullExchangeName") or quote.get("exchange") or "Hong Kong",
@@ -575,6 +1021,11 @@ def _build_stock_entry(
             "indicator_explanations": INDICATOR_METADATA,
         },
     }
+    factor, primary_alert, alerts = _build_alert_factor(entry, closes)
+    entry["factor"] = factor
+    entry["alert"] = primary_alert
+    entry["alerts"] = alerts
+    return entry
 
 
 def _pick_price(quote: dict[str, Any], closes: list[float]) -> float | None:
@@ -626,7 +1077,7 @@ def _build_mock_stock_entry(stock: dict[str, Any], index: int) -> dict[str, Any]
         market_cap=float(config["market_cap"]),
         dividend_yield_pct=float(config["dividend_yield_pct"]),
     )
-    return {
+    entry = {
         **stock,
         "as_of": _now_iso(),
         "exchange": "Hong Kong",
@@ -649,6 +1100,11 @@ def _build_mock_stock_entry(stock: dict[str, Any], index: int) -> dict[str, Any]
             "indicator_explanations": INDICATOR_METADATA,
         },
     }
+    factor, primary_alert, alerts = _build_alert_factor(entry, closes)
+    entry["factor"] = factor
+    entry["alert"] = primary_alert
+    entry["alerts"] = alerts
+    return entry
 
 
 def _generate_mock_series(config: dict[str, float], index: int) -> tuple[list[float], list[int]]:
@@ -671,6 +1127,7 @@ def _generate_mock_series(config: dict[str, float], index: int) -> tuple[list[fl
 def _summarise_watchlist(items: list[dict[str, Any]]) -> dict[str, Any]:
     advancing = sum(1 for item in items if (item["change"]["percent"] or 0) > 0)
     declining = sum(1 for item in items if (item["change"]["percent"] or 0) < 0)
+    alerted = [item for item in items if item.get("alert", {}).get("trigger") != "none"]
     return {
         "count": len(items),
         "symbols": [item["symbol"] for item in items],
@@ -680,6 +1137,18 @@ def _summarise_watchlist(items: list[dict[str, Any]]) -> dict[str, Any]:
             1
             for item in items
             if "MOCK_DATA" in item.get("metadata", {}).get("risk_flags", [])
+        ),
+        "alert_count": len(alerted),
+        "high_severity_alerts": sum(
+            1 for item in alerted if item.get("alert", {}).get("severity") == "high"
+        ),
+        "average_factor_score": round(
+            mean(
+                item.get("factor", {}).get("score", 0)
+                for item in items
+                if item.get("factor", {}).get("score") is not None
+            ),
+            1,
         ),
     }
 
@@ -700,6 +1169,7 @@ def _build_payload(provider_data: dict[str, Any]) -> dict[str, Any]:
         "summary": _summarise_watchlist(watchlist),
         "metadata": {
             "indicator_definitions": INDICATOR_METADATA,
+            "alert_rule_model": ALERT_RULE_MODEL,
             "watchlist_strategy": "Core HK large-cap and actively discussed retail names",
             "fallback_policy": (
                 "If live upstream calls fail or HK_STOCKS_PROVIDER=mock, the service "

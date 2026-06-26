@@ -66,6 +66,7 @@
     pb: "valuation",
     eps_ttm: "valuation",
     dividend_yield: "valuation",
+    factor_score: "factor_score",
   };
 
   const state = {
@@ -257,12 +258,22 @@
     return state.stocks.filter((stock) => stock.risk_flags.some((flag) => wanted.has(flag))).length;
   }
 
+  function activeStockAlerts() {
+    return state.stocks
+      .filter((stock) => stock.alert && stock.alert.trigger && stock.alert.trigger !== "none")
+      .sort((a, b) => {
+        const rank = { high: 3, medium: 2, low: 1, info: 0 };
+        return (rank[b.alert.severity] || 0) - (rank[a.alert.severity] || 0) || (b.factor_score || 0) - (a.factor_score || 0);
+      });
+  }
+
   function activeAlerts() {
     const alerts = [];
     const provider = state.raw && state.raw.provider;
     const ageMinutes = getAgeMinutes(state.raw && (state.raw.as_of || state.raw.generated_at));
     const delayedCount = countByFlag(["DELAYED_MARKET_DATA"]);
     const fallbackCount = countByFlag(["MOCK_DATA", "DEV_FALLBACK"]);
+    const stockAlerts = activeStockAlerts();
 
     if (provider && provider.warning) {
       alerts.push(`行情源告警：${provider.warning}`);
@@ -279,6 +290,12 @@
     if (fallbackCount > 0) {
       alerts.push(`${fallbackCount}/${state.stocks.length} 只标的使用 mock / fallback 数据。`);
     }
+    if (stockAlerts.length > 0) {
+      const highCount = stockAlerts.filter((stock) => stock.alert.severity === "high").length;
+      alerts.push(
+        `监控规则触发 ${stockAlerts.length} 次${highCount ? `，其中 ${highCount} 次为高优先级` : ""}。`,
+      );
+    }
     return Array.from(new Set(alerts));
   }
 
@@ -293,6 +310,9 @@
     const macd = momentum.macd || {};
     const bollinger = (item.bands && item.bands.bollinger) || {};
     const metadata = item.metadata || {};
+    const factor = item.factor || {};
+    const alert = item.alert || {};
+    const alerts = Array.isArray(item.alerts) ? item.alerts : [];
 
     return {
       ticker: item.symbol || item.ticker || "",
@@ -330,6 +350,16 @@
       bollinger_lower: asNum(bollinger.lower),
       bollinger_bandwidth: asNum(bollinger.bandwidth_pct),
       risk_flags: Array.isArray(metadata.risk_flags) ? metadata.risk_flags : [],
+      factor_score: asNum(factor.score ?? factor.factorScore),
+      factor_band: factor.band || "neutral",
+      factor_components: factor.components || {},
+      alert: {
+        trigger: alert.trigger || "none",
+        severity: alert.severity || "info",
+        reason: alert.reason || "",
+        matchedRules: Array.isArray(alert.matchedRules) ? alert.matchedRules : [],
+      },
+      alerts,
     };
   }
 
@@ -355,6 +385,7 @@
     const avgChange = average(state.stocks.map((stock) => stock.change_pct));
     const totalTurnover = sumBy(state.stocks, (stock) => stock.turnover);
     const fallbackCount = summary.fallback_count ?? countByFlag(["MOCK_DATA", "DEV_FALLBACK"]);
+    const avgFactorScore = summary.average_factor_score ?? average(state.stocks.map((stock) => stock.factor_score));
     const provider = state.raw && state.raw.provider;
 
     const cards = [
@@ -381,6 +412,12 @@
         value: fmtMoney(totalTurnover),
         sub: `<span class="ov-sub muted">HKD</span>`,
         cls: "",
+      },
+      {
+        label: "平均 Factor Score",
+        value: isNum(avgFactorScore) ? fmtNum(avgFactorScore, 1) : "—",
+        sub: `<span class="ov-sub muted">${summary.alert_count ?? activeStockAlerts().length} 条规则触发</span>`,
+        cls: isNum(avgFactorScore) ? ovDirClass(avgFactorScore - 50) : "",
       },
       {
         label: "回退标的",
@@ -607,6 +644,19 @@
     return flag === "LIVE_DATA" ? "ok" : "warn";
   }
 
+  function alertFlagClass(severity) {
+    return severity === "info" ? "ok" : "warn";
+  }
+
+  function alertSeverityLabel(severity) {
+    return {
+      high: "高",
+      medium: "中",
+      low: "低",
+      info: "提示",
+    }[severity] || severity || "提示";
+  }
+
   function renderDetail(ticker) {
     const stock = state.stocks.find((item) => item.ticker === ticker);
     if (!stock) return;
@@ -622,6 +672,11 @@
           .map((flag) => `<span class="flag ${riskFlagClass(flag)}">${escapeHtml(flag)}</span>`)
           .join("")
       : '<span class="flag ok">NO_EXTRA_FLAGS</span>';
+    const alertFlagList = stock.alert.matchedRules.length
+      ? stock.alert.matchedRules
+          .map((rule) => `<span class="flag ${alertFlagClass(stock.alert.severity)}">${escapeHtml(rule)}</span>`)
+          .join("")
+      : '<span class="flag ok">NO_MATCHED_RULES</span>';
 
     const coreMetrics = [
       metricCell("现价", fmtNum(stock.price), "price"),
@@ -631,6 +686,11 @@
       metricCell("成交额", fmtMoney(stock.turnover), "turnover"),
       metricCell("换手率", isNum(stock.turnover_rate) ? `${stock.turnover_rate.toFixed(2)}%` : "—", "turnover_rate"),
       metricCell("总市值", fmtMoney(stock.market_cap), "market_cap"),
+    ];
+    const alertMetrics = [
+      metricCell("Factor Score", isNum(stock.factor_score) ? fmtNum(stock.factor_score, 1) : "—", "factor_score"),
+      metricCell("Alert Trigger", escapeHtml(stock.alert.trigger || "none"), "factor_score"),
+      metricCell("Alert Severity", escapeHtml(alertSeverityLabel(stock.alert.severity)), "factor_score"),
     ];
     const technicalMetrics = [
       metricCell("30日波动率", isNum(stock.volatility_daily) ? `${stock.volatility_daily.toFixed(2)}%` : "—", "volatility_daily"),
@@ -661,10 +721,13 @@
         <span class="chg ${dc}" style="font-size:16px;">${changeText}</span>
         <span class="sector-tag">${escapeHtml(stock.sector)}</span>
       </div>
+      ${metricSection("Alert / Factor", alertMetrics)}
+      <p class="detail-note">${escapeHtml(stock.alert.reason || "当前未触发额外规则。")}</p>
       ${metricSection("核心指标", coreMetrics)}
       ${metricSection("技术指标", technicalMetrics)}
       ${metricSection("估值 / 分红", valuationMetrics)}
       <div class="flag-list">${flagList}</div>
+      <div class="flag-list">${alertFlagList}</div>
     `;
 
     els.body.querySelectorAll("tr[data-ticker]").forEach((tr) => {
@@ -674,7 +737,13 @@
 
   function renderRisk() {
     const notes = activeAlerts();
+    const stockAlerts = activeStockAlerts().slice(0, 6);
     if (state.raw && state.raw.disclaimer) notes.push(state.raw.disclaimer);
+    stockAlerts.forEach((stock) => {
+      notes.push(
+        `${stock.name}（${stock.code || stock.ticker}）[${alertSeverityLabel(stock.alert.severity)}] ${stock.alert.trigger}：${stock.alert.reason}（matchedRules: ${stock.alert.matchedRules.join(", ") || "none"}）`,
+      );
+    });
     els.riskList.innerHTML = notes.length
       ? notes.map((item) => `<li>${escapeHtml(item)}</li>`).join("")
       : '<li class="muted">暂无活动告警，但仍请以交易所 / 券商官方实时数据为准。</li>';
