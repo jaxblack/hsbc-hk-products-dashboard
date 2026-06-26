@@ -381,6 +381,334 @@ tbody td.empty {
   font-size: 12px;
 }
 
+/* =========================================================================
+   HK Equities monitoring (港股监控) — reuses panel/status/table primitives.
+   ========================================================================= */
+:root {
+  --up: #047857;       /* gains (green) */
+  --up-bg: #ecfdf5;
+  --down: #db0011;     /* losses (HSBC red) */
+  --down-bg: #fef2f2;
+  --flat: #6b7280;     /* unchanged */
+  --flat-bg: #f3f4f6;
+}
+
+.equities { margin: 4px 0 22px; }
+.equities-heading {
+  align-items: center;
+  justify-content: space-between;
+}
+.equities-heading h2 { font-size: 20px; margin: 2px 0 0; }
+.equities-heading .eyebrow { margin: 0; }
+.equities-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.refresh-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  background: var(--flat-bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+.refresh-status .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--flat); display: inline-block;
+}
+.refresh-status.ok { color: var(--ok); background: var(--ok-bg); border-color: #a7f3d0; }
+.refresh-status.ok .dot { background: var(--ok); }
+.refresh-status.warn { color: var(--accent); background: var(--warn-bg); border-color: var(--warn-line); }
+.refresh-status.warn .dot { background: var(--accent); }
+.refresh-status.loading .dot { animation: eq-pulse 1s ease-in-out infinite; }
+@keyframes eq-pulse { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
+.auto-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-muted);
+  cursor: pointer;
+  user-select: none;
+}
+.auto-toggle input { accent-color: var(--info); }
+
+.eq-disclaimer {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-line);
+  border-left: 4px solid var(--accent);
+  color: var(--warn-ink);
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  margin: 12px 0 16px;
+}
+.eq-disclaimer strong { color: var(--accent); }
+
+/* Overview cards */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.overview-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 78px;
+}
+.overview-card .ov-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+}
+.overview-card .ov-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.overview-card .ov-sub { font-size: 12.5px; font-weight: 600; }
+.overview-card.skeleton .ov-value { color: #cbd5e1; }
+.ov-up { color: var(--up); }
+.ov-down { color: var(--down); }
+.ov-flat { color: var(--flat); }
+
+/* Macro / Micro analysis */
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.analysis-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.analysis-card h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+.analysis-card h3 .hint { font-size: 11px; color: var(--ink-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.analysis-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px dashed var(--line);
+}
+.analysis-row:first-child { border-top: 0; }
+.analysis-row .a-label { font-weight: 600; font-size: 13.5px; }
+.analysis-row .a-meta { text-align: right; min-width: 0; }
+.analysis-row .a-value { font-weight: 700; font-size: 13.5px; }
+.analysis-row .a-note { display: block; color: var(--ink-muted); font-size: 12px; margin-top: 2px; }
+.stance {
+  display: inline-block;
+  width: 8px; height: 8px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle;
+}
+.stance.positive { background: var(--up); }
+.stance.negative { background: var(--down); }
+.stance.neutral  { background: var(--info); }
+.stance.watch    { background: #d97706; }
+.regime-pill {
+  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.regime-pill.positive { background: var(--up-bg); color: var(--up); }
+.regime-pill.negative { background: var(--down-bg); color: var(--down); }
+.regime-pill.neutral  { background: var(--info-bg); color: var(--info); }
+
+/* Equities filters (reuses .filter-field) */
+.eq-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* Equities table extras */
+.eq-table-panel tbody tr { cursor: pointer; }
+.eq-table-panel tbody tr.selected { background: var(--info-bg); }
+.eq-name { display: flex; flex-direction: column; gap: 1px; }
+.eq-name .nm { font-weight: 600; color: var(--ink); }
+.eq-name .cd { font-size: 11.5px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.chg { font-variant-numeric: tabular-nums; font-weight: 700; }
+.chg.up { color: var(--up); }
+.chg.down { color: var(--down); }
+.chg.flat { color: var(--flat); }
+.eq-table-panel td.num { color: var(--ink); }
+
+/* Tooltip on indicator headers (data-tip + injected title is the a11y path) */
+th[data-tip] { position: relative; }
+th[data-tip]::before {
+  content: attr(data-tiptext);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  background: #111827;
+  color: #fff;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: normal;
+  width: max-content;
+  max-width: 240px;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+  z-index: 20;
+}
+th[data-tip]:hover::before,
+th[data-tip]:focus-within::before { opacity: 1; }
+
+/* Metric detail drawer */
+.eq-detail-body .detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.metric {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+}
+.metric .m-label {
+  font-size: 11px;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.metric .m-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  font-size: 10px;
+  color: var(--ink-muted);
+  cursor: help;
+}
+.metric .m-value {
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin-top: 3px;
+}
+.detail-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.detail-head .price-big { font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.detail-head .sector-tag {
+  font-size: 12px; font-weight: 600;
+  background: var(--flat-bg); color: var(--ink-muted);
+  padding: 2px 10px; border-radius: 999px;
+}
+.detail-note { color: var(--ink-muted); font-size: 13.5px; margin: 12px 0 0; }
+.range-bar {
+  margin-top: 14px;
+}
+.range-bar .rb-track {
+  position: relative;
+  height: 8px;
+  background: linear-gradient(90deg, var(--down-bg), var(--flat-bg), var(--up-bg));
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.range-bar .rb-mark {
+  position: absolute;
+  top: -3px;
+  width: 4px; height: 14px;
+  background: var(--info);
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+.range-bar .rb-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--ink-muted);
+  margin-top: 5px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Risk notes + glossary */
+.risk-list { list-style: none; padding: 0; margin: 0; }
+.risk-list li {
+  padding: 8px 0 8px 26px;
+  position: relative;
+  border-top: 1px dashed var(--line);
+  color: var(--warn-ink);
+  font-size: 13.5px;
+}
+.risk-list li:first-child { border-top: 0; }
+.risk-list li::before {
+  content: "⚠";
+  position: absolute;
+  left: 2px;
+  color: var(--accent);
+}
+.glossary { margin-top: 12px; }
+.glossary summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--info);
+}
+.glossary dl {
+  margin: 10px 0 0;
+  display: grid;
+  grid-template-columns: minmax(110px, 180px) 1fr;
+  gap: 6px 14px;
+  font-size: 13px;
+}
+.glossary dt { font-weight: 700; color: var(--ink); }
+.glossary dd { margin: 0; color: var(--ink-muted); }
+
+@media (max-width: 760px) {
+  .equities-heading { align-items: flex-start; }
+  .analysis-grid { grid-template-columns: 1fr; }
+  .glossary dl { grid-template-columns: 1fr; gap: 2px 0; }
+  .glossary dd { margin-bottom: 8px; }
+}
+
 @media (max-width: 960px) {
   .flow-diagram {
     grid-template-columns: 1fr;
