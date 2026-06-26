@@ -147,6 +147,20 @@ HK_WATCHLIST = [
         "sector": "Consumer Electronics",
         "currency": "HKD",
     },
+    {"symbol": "1211.HK", "code": "1211", "name": "BYD", "sector": "EV", "currency": "HKD"},
+    {"symbol": "2015.HK", "code": "2015", "name": "Li Auto", "sector": "EV", "currency": "HKD"},
+    {"symbol": "9868.HK", "code": "9868", "name": "XPeng", "sector": "EV", "currency": "HKD"},
+    {"symbol": "9866.HK", "code": "9866", "name": "NIO", "sector": "EV", "currency": "HKD"},
+    {"symbol": "9626.HK", "code": "9626", "name": "Bilibili", "sector": "Internet", "currency": "HKD"},
+    {"symbol": "9961.HK", "code": "9961", "name": "Trip.com", "sector": "Internet", "currency": "HKD"},
+    {"symbol": "6618.HK", "code": "6618", "name": "JD Health", "sector": "Healthcare", "currency": "HKD"},
+    {"symbol": "0285.HK", "code": "0285", "name": "BYD Electronic", "sector": "Consumer Electronics", "currency": "HKD"},
+    {"symbol": "0268.HK", "code": "0268", "name": "Kingdee", "sector": "Software", "currency": "HKD"},
+    {"symbol": "3888.HK", "code": "3888", "name": "Kingsoft", "sector": "Software", "currency": "HKD"},
+    {"symbol": "0522.HK", "code": "0522", "name": "ASMPT", "sector": "Semiconductors", "currency": "HKD"},
+    {"symbol": "1347.HK", "code": "1347", "name": "Hua Hong Semi", "sector": "Semiconductors", "currency": "HKD"},
+    {"symbol": "2269.HK", "code": "2269", "name": "WuXi Bio", "sector": "Biotech", "currency": "HKD"},
+    {"symbol": "0772.HK", "code": "0772", "name": "China Literature", "sector": "Internet", "currency": "HKD"},
 ]
 
 GOOGLE_NEWS_RSS = "https://news.google.com/rss/search?q={query}&hl=zh-CN&gl=CN&ceid=CN:zh"
@@ -235,6 +249,76 @@ COMPANY_PROFILES: dict[str, dict[str, Any]] = {
         "name_cn": "舜宇光学科技",
         "summary": "光学零件与镜头模组供应商，产品用于智能手机、车载摄像、AR/VR 与安防等领域。",
         "industry": "光学元件",
+    },
+    "1211.HK": {
+        "name_cn": "比亚迪股份",
+        "summary": "中国新能源汽车与动力电池龙头，业务含乘用车、商用车、电池（弗迪）与电子代工，垂直整合度高。",
+        "industry": "新能源汽车",
+    },
+    "2015.HK": {
+        "name_cn": "理想汽车-W",
+        "summary": "中国新能源车企，主打增程式与纯电 SUV，以家庭用户与智能座舱见长。",
+        "industry": "新能源汽车",
+    },
+    "9868.HK": {
+        "name_cn": "小鹏汽车-W",
+        "summary": "中国智能电动车企，主打智能驾驶（XNGP）与全栈自研，覆盖轿车与 SUV。",
+        "industry": "新能源汽车",
+    },
+    "9866.HK": {
+        "name_cn": "蔚来-SW",
+        "summary": "中国高端智能电动车企，以换电体系、用户社区与多品牌（蔚来/乐道/萤火虫）布局。",
+        "industry": "新能源汽车",
+    },
+    "9626.HK": {
+        "name_cn": "哔哩哔哩-W",
+        "summary": "中国年轻人文化社区与视频平台，业务含游戏、增值服务、广告与电商。",
+        "industry": "互联网视频",
+    },
+    "9961.HK": {
+        "name_cn": "携程集团-S",
+        "summary": "中国领先的在线旅游平台，覆盖机票、酒店、度假与商旅，海外 Trip.com 增长较快。",
+        "industry": "在线旅游",
+    },
+    "6618.HK": {
+        "name_cn": "京东健康",
+        "summary": "京东旗下医疗健康平台，业务含医药电商、在线问诊与互联网医院。",
+        "industry": "互联网医疗",
+    },
+    "0285.HK": {
+        "name_cn": "比亚迪电子",
+        "summary": "比亚迪旗下电子代工与零部件商，业务含手机结构件、组装、新型智能产品与汽车电子。",
+        "industry": "电子代工",
+    },
+    "0268.HK": {
+        "name_cn": "金蝶国际",
+        "summary": "中国企业管理软件与云服务商，主打 ERP 与企业级 SaaS（金蝶云·苍穹/星空）。",
+        "industry": "企业软件",
+    },
+    "3888.HK": {
+        "name_cn": "金山软件",
+        "summary": "软件与互联网公司，旗下 WPS Office（金山办公）、金山游戏与云业务。",
+        "industry": "软件",
+    },
+    "0522.HK": {
+        "name_cn": "ASMPT",
+        "summary": "半导体与电子封装设备供应商，提供后段封装、SMT 及先进封装设备。",
+        "industry": "半导体设备",
+    },
+    "1347.HK": {
+        "name_cn": "华虹半导体",
+        "summary": "中国特色工艺晶圆代工厂，聚焦功率器件、模拟与嵌入式存储等成熟制程。",
+        "industry": "半导体代工",
+    },
+    "2269.HK": {
+        "name_cn": "药明生物",
+        "summary": "全球领先的生物药 CRDMO 平台，提供从发现、开发到生产的一体化外包服务。",
+        "industry": "生物医药外包",
+    },
+    "0772.HK": {
+        "name_cn": "阅文集团",
+        "summary": "中国网络文学与 IP 运营平台（起点中文网等），布局影视、动漫与版权衍生。",
+        "industry": "网络文学与 IP",
     },
 }
 
