@@ -8,3 +8,6 @@ _probes/
 _smoke.py
 _inspect.py
 _verify.py
+# local-only operational config; see docs/alerts.md
+alerts.local.json
+_debug/

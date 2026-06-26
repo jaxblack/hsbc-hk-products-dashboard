@@ -225,3 +225,19 @@ fabricate numbers for them.
 
 The static dashboard at the repo root does not depend on these endpoints;
 it reads `data/products.json` directly.
+
+---
+
+## Production & operations
+
+看板的运维 / 部署 / 数据语义 / 告警 / 风险说明都在 [`docs/`](docs/README.md) 下，**与业务 UI 解耦**：
+
+- [`docs/metrics.md`](docs/metrics.md) — 指标字典：`data/products.json` 每个字段的语义、单位、合法范围、派生指标定义。
+- [`docs/data-sources.md`](docs/data-sources.md) — 数据源策略、宏观/微观分层、未来 roadmap、何时不该接入新源。
+- [`docs/alerts.md`](docs/alerts.md) — 抓取健康度 / 数据语义 / 站点可用性三类告警的轻量级配置方案（webhook、Healthchecks.io、GitHub Actions）。
+- [`docs/deployment.md`](docs/deployment.md) — 生产部署 checklist、环境变量约定、部署目标矩阵、回滚流程。
+- [`docs/observability.md`](docs/observability.md) — 监控 / 日志 / 故障降级路径（Level 0–5）、季度故障演练建议。
+- [`docs/data-latency.md`](docs/data-latency.md) — 数据延迟来源拆解 + 标准免责声明文本（前端必须保留）。
+- [`docs/trading-risk.md`](docs/trading-risk.md) — 为什么本看板**不能**驱动真实下单 / 真实交易决策。
+
+> ⚠️ 上述文档**不是**投资建议、产品推荐或合规背书；任何关于 HSBC 产品的真实条款请以 HSBC 官网为准。
